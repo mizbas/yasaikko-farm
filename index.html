@@ -214,6 +214,42 @@ h1{font-size:30px;letter-spacing:.02em;text-shadow:0 2px 0 var(--dot)}
 .item.ok .needt{color:var(--accent)}
 .tabs .n{font-size:11px;padding:0 6px;border-radius:999px;background:var(--accent);color:var(--accent-ink);margin-left:2px}
 @media (prefers-reduced-motion:reduce){.qk.fresh{animation:none}.pbar i{transition:none}}
+
+.rank{display:flex;align-items:center;justify-content:flex-end;gap:6px;margin-top:2px;font-size:12px}
+.rlv{font-family:var(--display);color:var(--accent);font-size:14px}
+.rtitle{font-weight:700}
+.rbar{width:80px;height:6px;border-radius:999px;background:var(--line);overflow:hidden}
+.rbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--leaf),var(--rare));transition:width .4s}
+.banner{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:14px 16px;border-radius:14px;background:linear-gradient(135deg,var(--rare),var(--accent));color:#fff;box-shadow:var(--shadow)}
+.banner strong{font-family:var(--display);font-weight:400;font-size:20px;display:block}
+.banner p{margin:2px 0 0;font-size:13px;font-weight:700}
+.banner .btn{background:#fff;color:var(--accent)}
+.banner.pop{animation:bannerIn .6s cubic-bezier(.2,1.6,.4,1)}
+@keyframes bannerIn{from{transform:scale(.7);opacity:0}}
+.wx.sale{border-color:var(--accent);color:var(--accent)}
+.pill-req{border:0;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:700;background:var(--leaf);color:#fff;cursor:pointer;animation:nudge 1.6s ease-in-out infinite}
+.reqs,.achs{display:flex;flex-direction:column;gap:8px}
+.req{display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+.req canvas{width:48px;height:54px}
+.req.ok{border-color:var(--leaf);box-shadow:0 0 0 1px var(--leaf)}
+.req.empty{grid-template-columns:1fr;border-style:dashed;color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
+.rwho{font-size:12px;color:var(--muted);font-weight:700}
+.rwant{font-weight:700;font-size:14px;line-height:1.4}
+.rhave{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.rhave.ok{color:var(--leaf);font-weight:700}
+.rrew{font-size:12px;color:var(--accent);font-weight:700;font-variant-numeric:tabular-nums}
+.link:disabled{color:var(--muted);text-decoration:none;cursor:default}
+.ach{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+.ach.ok{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.ach.done{opacity:.7}
+.aname{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;font-weight:700}
+.astars{color:var(--rare);font-size:12px;letter-spacing:1px}
+.agoal{font-size:12px;color:var(--muted)}
+.card{position:relative}
+.card .kira{position:absolute;top:3px;right:5px;font-style:normal;color:var(--rare);font-size:14px;text-shadow:0 0 6px var(--rare)}
+.tabs{flex-wrap:wrap}
+.tabs button{padding:5px 12px}
+@media (prefers-reduced-motion:reduce){.banner.pop,.pill-req{animation:none}}
 </style>
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
@@ -235,6 +271,7 @@ h1{font-size:30px;letter-spacing:.02em;text-shadow:0 2px 0 var(--dot)}
     </div>
     <div class="purse">
       <div class="coins" id="coinbox"><small>売上金</small><span id="coins">0</span>円</div>
+      <div class="rank"><span class="rlv" id="rlv">Lv1</span><span class="rtitle" id="rtitle">見習い農家</span><span class="rbar"><i id="rbar"></i></span></div>
       <div class="dexline" id="dexline">図鑑 0 / 32</div>
     </div>
   </header>
@@ -252,9 +289,11 @@ h1{font-size:30px;letter-spacing:.02em;text-shadow:0 2px 0 var(--dot)}
         <button id="all" class="btn" type="button" hidden>まとめて収穫</button>
       </div>
       <div class="quick" id="quick">
-        <div class="quick-h"><strong>すぐ強化</strong><span id="quick-h-n" class="qcount"></span><button type="button" class="link" id="quick-all">道具屋をぜんぶ見る</button></div>
+        <div class="quick-h"><strong>すぐ強化</strong><span id="quick-h-n" class="qcount"></span><button type="button" class="pill-req" id="pill-req" hidden></button><button type="button" class="link" id="quick-all">道具屋をぜんぶ見る</button></div>
         <div class="qrow" id="qrow"></div>
       </div>
+      <div class="banner" id="banner" hidden role="status"><div><strong id="banner-t"></strong><p id="banner-p"></p></div><button type="button" class="btn" id="banner-x">やったね</button></div>
+      <div class="wx sale" id="sale" hidden></div>
       <div class="wx" id="wx" hidden></div>
       <div class="welcome" id="welcome" hidden><p></p><button type="button" class="btn">受け取る</button></div>
       <p class="tip" id="tip">なでて3本以上まとめて抜くと、ときどき「おまけ」でもう1本ついてくる。</p>
@@ -273,9 +312,20 @@ h1{font-size:30px;letter-spacing:.02em;text-shadow:0 2px 0 var(--dot)}
     <section class="book" aria-label="帳面">
       <div class="tabs" role="tablist">
         <button type="button" role="tab" id="t-shop" aria-selected="true">道具屋 <span class="n" hidden></span></button>
+        <button type="button" role="tab" id="t-req" aria-selected="false">お願い <span class="n" hidden></span></button>
+        <button type="button" role="tab" id="t-ach" aria-selected="false">実績 <span class="n" hidden></span></button>
         <button type="button" role="tab" id="t-dex" aria-selected="false">図鑑</button>
       </div>
       <div id="p-shop" class="shop" role="tabpanel"></div>
+      <div id="p-req" role="tabpanel" hidden>
+        <div class="dexhead"><strong>町の人のお願い</strong><button type="button" class="link" id="reroll">ほかのお願いにかえる</button></div>
+        <p class="legend">倉庫にある子をわたすと、ふつうに売るよりずっと多くのお礼と経験値がもらえます。</p>
+        <div class="reqs" id="reqs"></div>
+      </div>
+      <div id="p-ach" role="tabpanel" hidden>
+        <div class="dexhead"><strong id="achcount">実績</strong><span class="dexline" id="achsub"></span></div>
+        <div class="achs" id="achs"></div>
+      </div>
       <div id="p-dex" role="tabpanel" hidden>
         <div class="dexhead"><strong id="dexcount">0 / 32</strong><span class="dexline" id="dexharv">収穫 0本</span></div>
         <div class="prog"><i id="dexbar" style="width:0%"></i></div>
@@ -362,7 +412,7 @@ const CTYPES=[
   {id:'rich',name:'お金持ち',w:5,qty:()=>1,pay:2,shirt:'#3a3f6a',hat:'top'}
 ];
 function fresh(){return{coins:0,total:0,harv:0,stage:0,unlocked:[true,false,false,false,false],fert:0,une:0,kakashi:0,kago:false,dex:{},fields:[[],[],[],[],[]],farmers:[0,0,0,0,0],
-  inv:{},shelf:[null,null,null],tana:0,kura:0,nobori:0,rep:1,sold:0,sales:0,v:3,last:Date.now()}}
+  inv:{},shelf:[null,null,null],tana:0,kura:0,nobori:0,rep:1,sold:0,sales:0,lv:1,xp:0,req:[null,null,null],reqNext:[0,0,0],rerollAt:0,ach:{},st:{kira:0,req:0,happy:0,rare:0,combo:0},shiny:{},v:4,last:Date.now()}}
 function migrate(o){
   const s=Object.assign(fresh(),o);
   while(s.unlocked.length<NST)s.unlocked.push(false);
@@ -370,13 +420,92 @@ function migrate(o){
   while(s.farmers.length<NST)s.farmers.push(0);
   if(!o.v||o.v<3){s.inv={};s.shelf=[null,null,null]}
   while(s.shelf.length<SHELF[s.tana])s.shelf.push(null);
+  s.st=Object.assign({kira:0,req:0,happy:0,rare:0,combo:0},o.st||{});
   return s;
 }
 const cap=()=>CAP[S.kura];
 const invTotal=()=>{let n=0;for(const k in S.inv)n+=S.inv[k];return n};
 const invFull=()=>invTotal()>=cap();
 const custIv=()=>9/(1+S.rep*0.35)/Math.pow(1.35,S.nobori);
-const unitPrice=(sp,pl)=>Math.max(1,Math.round(sp.val*fieldMult(sp.st)*PRICE[pl].m));
+
+/* ---------- rank / requests / achievements / sale ---------- */
+const TITLES=[[1,'見習い農家'],[3,'かけだし農家'],[5,'ふつうの農家'],[8,'腕ききの農家'],[12,'町の名物農家'],[16,'畑の名人'],[21,'やさいっこ博士'],[27,'伝説の農家'],[35,'やさいっこ王']];
+const DECOR={3:'畑に風車',5:'直売所に看板ねこ',7:'畑に花壇',10:'直売所にちょうちん',15:'金色の看板'};
+const title=lv=>{let t=TITLES[0][1];TITLES.forEach(([l,n])=>{if(lv>=l)t=n});return t};
+const needXp=L=>Math.round(40*Math.pow(1.38,L-1));
+const rankMult=()=>1+0.03*(S.lv-1);
+let simming=false,lvGain=0;
+function gainXp(n){
+  S.xp+=n;
+  while(S.xp>=needXp(S.lv)){S.xp-=needXp(S.lv);S.lv++;lvGain++;const c=Math.round(50*Math.pow(1.55,S.lv));S.coins+=c;S.total+=c;if(!simming)levelUp(c)}
+}
+function levelUp(c){
+  sfx('level');
+  const parts=['売値 +'+Math.round((rankMult()-1)*100)+'%','ごほうび '+fmt(c)+'円'];
+  if(DECOR[S.lv])parts.push('新しい飾り：'+DECOR[S.lv]);
+  const t=title(S.lv);if(TITLES.some(([l])=>l===S.lv))parts.unshift('称号「'+t+'」');
+  showBanner('ランクアップ！ Lv'+S.lv,parts.join(' ・ '));
+  for(let i=0;i<20;i++)setTimeout(()=>{if(W)burst(Math.random()*W,H*.2,'star',2,20)},i*40);
+}
+const SALE={sp:null,until:0,next:Date.now()+120000};
+const saleOn=id=>SALE.sp===id&&Date.now()<SALE.until;
+function saleTick(){
+  const now=Date.now();
+  if(SALE.sp&&now>=SALE.until){SALE.sp=null;SALE.next=now+(180+Math.random()*120)*1000}
+  if(!SALE.sp&&now>=SALE.next){
+    const pool=SP.filter(x=>S.dex[x.id]);if(!pool.length){SALE.next=now+60000;return}
+    const shelfIds=S.shelf.filter(Boolean).map(x=>x.sp).filter(id=>S.inv[id]);
+    const pick=Math.random()<.5&&shelfIds.length?shelfIds[Math.floor(Math.random()*shelfIds.length)]:pool[Math.floor(Math.random()*pool.length)].id;
+    SALE.sp=pick;SALE.until=now+90000;sfx('rare');toast('特売タイム！「'+SPI[pick].name+'」が1.5倍で売れる（90秒）');stallSig='';
+  }
+}
+const CLIENTS=['パン屋のおやじさん','給食のおばちゃん','お寿司屋さん','となりの子ども','旅館の女将さん','カレー屋さん','料亭の板前さん','お祭りの屋台','町長さん','山の茶屋','漁師のおじさん','ケーキ屋さん'];
+function newReq(){
+  const pool=SP.filter(x=>S.dex[x.id]&&x.r<=3);if(!pool.length)return null;
+  let tot=0;const w=pool.map(x=>{const v=(x.r===1?4:x.r===2?2:1)*(1+x.st*.4);tot+=v;return v});
+  let r=Math.random()*tot,sp=pool[0];for(let i=0;i<pool.length;i++){r-=w[i];if(r<=0){sp=pool[i];break}}
+  const n=sp.r===1?3+Math.floor(Math.random()*(4+S.lv/3)):sp.r===2?2+Math.floor(Math.random()*3):1+(Math.random()<.3?1:0);
+  return{sp:sp.id,n,who:CLIENTS[Math.floor(Math.random()*CLIENTS.length)],coins:Math.round(sp.val*fieldMult(sp.st)*n*2.5*rankMult()),xp:Math.round(n*4*sp.r+6)};
+}
+function reqTick(){
+  const now=Date.now();
+  S.req.forEach((q,i)=>{if(!q&&now>=S.reqNext[i]){const r=newReq();if(r){S.req[i]=r;reqSig=''}}});
+}
+function deliver(i){
+  const q=S.req[i];if(!q)return;
+  if((S.inv[q.sp]||0)<q.n){sfx('full');toast(SPI[q.sp].name+'があと '+(q.n-(S.inv[q.sp]||0))+'本 たりません');return}
+  S.inv[q.sp]-=q.n;if(!S.inv[q.sp])delete S.inv[q.sp];
+  S.coins+=q.coins;S.total+=q.coins;S.rep=Math.min(5,S.rep+.15);S.st.req++;
+  S.req[i]=null;S.reqNext[i]=Date.now()+25000;reqSig='';stallSig='';
+  sfx('coin');sfx('happy');toast(q.who+'「ありがとう！」 +'+fmt(q.coins)+'円');gainXp(q.xp);updateUI();
+}
+function rerollReqs(){
+  if(Date.now()<S.rerollAt)return;
+  S.req=S.req.map(q=>q?newReq():q);S.rerollAt=Date.now()+180000;reqSig='';sfx('tap');updateUI();
+}
+const ACH=[
+  {id:'harv',name:'収穫名人',unit:'本',get:()=>S.harv,tiers:[10,100,500,2000,10000,50000]},
+  {id:'sold',name:'売れっ子直売所',unit:'本',get:()=>S.sold,tiers:[10,100,1000,5000,20000,100000]},
+  {id:'sales',name:'売上ためよう',unit:'円',get:()=>S.sales,tiers:[1000,1e5,1e7,1e9,1e11]},
+  {id:'dex',name:'やさいっこ博士',unit:'種',get:()=>SP.filter(x=>S.dex[x.id]).length,tiers:[5,10,20,26,32]},
+  {id:'req',name:'町の頼れる農家',unit:'件',get:()=>S.st.req,tiers:[1,10,50,200,1000]},
+  {id:'happy',name:'笑顔の直売所',unit:'人',get:()=>S.st.happy,tiers:[10,100,1000,10000]},
+  {id:'kira',name:'きらきらハンター',unit:'回',get:()=>S.st.kira,tiers:[1,5,15,40]},
+  {id:'rare',name:'レア運',unit:'回',get:()=>S.st.rare,tiers:[1,10,50,200]},
+  {id:'combo',name:'なでなで上手',unit:'コンボ',get:()=>S.st.combo,tiers:[3,5,8,12]},
+  {id:'field',name:'開拓者',unit:'か所',get:()=>S.unlocked.filter(Boolean).length,tiers:[2,3,4,5]},
+  {id:'farm',name:'農家さん大集合',unit:'Lv',get:()=>S.farmers.reduce((a,b)=>a+b,0),tiers:[1,5,15,25]},
+  {id:'comp',name:'図鑑コンプリート',unit:'畑',get:()=>STAGES.filter((_,i)=>stageComplete(i)).length,tiers:[1,3,5]}
+];
+const achReward=i=>({coins:Math.round(100*Math.pow(6,i)),xp:30*(i+1)});
+function achClaimable(){return ACH.filter(a=>{const k=S.ach[a.id]||0;return k<a.tiers.length&&a.get()>=a.tiers[k]}).length}
+function claimAch(id){
+  const a=ACH.find(x=>x.id===id),k=S.ach[id]||0;if(k>=a.tiers.length||a.get()<a.tiers[k])return;
+  const rw=achReward(k);S.ach[id]=k+1;S.coins+=rw.coins;S.total+=rw.coins;sfx('buy');
+  toast('実績「'+a.name+'」★'+(k+1)+' 達成！ +'+fmt(rw.coins)+'円');gainXp(rw.xp);achSig='';updateUI();
+}
+let reqSig='',achSig='';
+const unitPrice=(sp,pl)=>Math.max(1,Math.round(sp.val*fieldMult(sp.st)*PRICE[pl].m*rankMult()*(saleOn(sp.id)?1.5:1)));
 function autoShelf(id){
   if(S.shelf.some(x=>x&&x.sp===id))return;
   const i=S.shelf.indexOf(null);if(i>=0){S.shelf[i]={sp:id,price:1};stallSig=''}
@@ -390,6 +519,7 @@ function restock(){
 }
 function pickType(){let r=Math.random()*100;for(const t of CTYPES){r-=t.w;if(r<=0)return t}return CTYPES[0]}
 function pickWish(t){
+  if(SALE.sp&&saleOn(SALE.sp)&&Math.random()<.5)return SALE.sp;
   let pool=SP.filter(s=>S.dex[s.id]);
   if(t.id==='rich'){const rare=pool.filter(s=>s.r>=3);if(rare.length)pool=rare;else{const r2=pool.filter(s=>s.r>=2);if(r2.length)pool=r2}}
   if(!pool.length)return null;
@@ -417,6 +547,8 @@ function serve(c){
   const mood=n===0?'sad':gotWish?'happy':'ok';
   S.rep=Math.max(0,Math.min(5,S.rep+(mood==='happy'?.06:mood==='ok'?.02:!avail.length?-.05:-.02)));
   S.coins+=paid;S.total+=paid;S.sales+=paid;S.sold+=n;
+  if(mood==='happy')S.st.happy++;
+  if(n)gainXp(n);
   return{n,paid,mood,empty:!avail.length};
 }
 let S=fresh();
@@ -435,7 +567,7 @@ function roll(st){
   let r=Math.random()*tot;for(let i=0;i<pool.length;i++){r-=w[i];if(r<=0)return pool[i].id}
   return pool[0].id;
 }
-function plant(st,now){return{sp:roll(st),t0:now,dur:STAGES[st].base*1000/speed()*(0.85+Math.random()*0.3),ph:Math.random()*6.28}}
+function plant(st,now){return{sp:roll(st),t0:now,dur:STAGES[st].base*1000/speed()*(0.85+Math.random()*0.3),ph:Math.random()*6.28,shiny:Math.random()<(1+S.kakashi*.5)/150}}
 function fillFields(){
   const now=Date.now();
   S.fields.forEach((f,st)=>{if(!S.unlocked[st])return;while(f.length<slotCount())f.push(plant(st,now))});
@@ -554,6 +686,8 @@ function sfx(name,arg){
     case'tap':tone(d,{type:'sine',f:700,t,d:.06,v:.06});break;
     case'full':tone(d,{type:'square',f:200,t,d:.12,v:.04,filt:900});tone(d,{type:'square',f:160,t:t+.12,d:.18,v:.04,filt:900});break;
     case'rain':hiss(d,t,.05,3000,1.2);break;
+    case'level':[0,4,7,12,7,12,16,19].forEach((n,i)=>tone(d,{type:i<4?'triangle':'square',f:mf(67+n),t:t+i*.09,d:i===7?.8:.18,v:i<4?.08:.04,filt:3500}));break;
+    case'kira':[0,7,12,16,19,24,28,31].forEach((n,i)=>tone(d,{type:'sine',f:mf(76+n),t:t+i*.05,d:.5,v:.07}));break;
   }
 }
 function updateSnd(){
@@ -820,13 +954,17 @@ function drawStall(t,dt){
    for(let i=0;i<=flags;i++){const x=L+(R-L)*i/flags,y=by0+Math.sin(i/flags*Math.PI)*H*.04;i?ctx.lineTo(x,y):ctx.moveTo(x,y)}ctx.stroke();
    for(let i=0;i<flags;i++){const x=L+(R-L)*(i+.5)/flags,y=by0+Math.sin((i+.5)/flags*Math.PI)*H*.04,sw2=reduce?0:Math.sin(t*3+i)*2;
      ctx.fillStyle=cols[i%cols.length];ctx.beginPath();ctx.moveTo(x-7,y);ctx.lineTo(x+7,y);ctx.lineTo(x+sw2,y+13);ctx.closePath();ctx.fill()}}
+  if(S.lv>=5)decorShopCat(t,R-Math.max(24,W*.07),top-H*.06);
   // sign
-  const sgW=Math.min(170,W*.42);ctx.fillStyle='#f6edd8';rr(ctx,W/2-sgW/2,top-H*.13,sgW,H*.075,6);ctx.fill();
+  const sgW=Math.min(170,W*.42);if(S.lv>=15){const gg=ctx.createLinearGradient(0,top-H*.13,0,top-H*.055);gg.addColorStop(0,'#ffe58a');gg.addColorStop(1,'#e0a92a');ctx.fillStyle=gg}else ctx.fillStyle='#f6edd8';rr(ctx,W/2-sgW/2,top-H*.13,sgW,H*.075,6);ctx.fill();
   ctx.strokeStyle='#6b4423';ctx.lineWidth=2;ctx.stroke();
   ctx.fillStyle='#5a3a1e';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=Math.round(H*.045)+'px "Mochiy Pop One",sans-serif';ctx.fillText('やさいっこ直売所',W/2,top-H*.092);
   ctx.textBaseline='alphabetic';
   // rep stars on back wall
   ctx.font='12px "Zen Maru Gothic",sans-serif';ctx.fillStyle='#fff3d0';ctx.textAlign='left';ctx.fillText('評判 '+'★'.repeat(Math.round(S.rep))+'☆'.repeat(5-Math.round(S.rep)),L+14,top+18);
+  if(S.lv>=10){const n=Math.max(3,Math.round((R-L)/90));for(let i=0;i<n;i++){const x=L+(R-L)*(i+.5)/n,sw=reduce?0:Math.sin(t*1.8+i)*.08;ctx.save();ctx.translate(x,top+H*.02);ctx.rotate(sw);ctx.strokeStyle='#3a2a22';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(0,H*.05);ctx.stroke();
+    const lg=ctx.createRadialGradient(0,H*.09,0,0,H*.09,H*.09);lg.addColorStop(0,'rgba(255,200,120,.45)');lg.addColorStop(1,'rgba(255,200,120,0)');ctx.fillStyle=lg;ctx.beginPath();ctx.arc(0,H*.09,H*.09,0,7);ctx.fill();
+    ctx.fillStyle='#e0484a';ctx.beginPath();ctx.ellipse(0,H*.09,H*.028,H*.04,0,0,7);ctx.fill();ctx.fillStyle='#3a2a22';ctx.fillRect(-H*.018,H*.048,H*.036,H*.006);ctx.fillRect(-H*.018,H*.128,H*.036,H*.006);ctx.restore()}}
   // counter
   ctx.fillStyle='#8a5a30';ctx.fillRect(L,ctr,R-L,H*.13);ctx.fillStyle='#a8733f';ctx.fillRect(L-4,ctr-4,R-L+8,8);
   // baskets
@@ -957,6 +1095,50 @@ function ambientFront(st,t){
     ctx.fillStyle='#3a2a22';ctx.beginPath();ctx.arc(cx-2.5,cy-5,1.4,0,7);ctx.arc(cx+2.5,cy-5,1.4,0,7);ctx.fill();
   }
 }
+
+function decorField(st,t){
+  const soilY=H*.3;
+  if(S.lv>=7&&st!==3){
+    const cols=['#f27a9a','#ffd34a','#ffffff','#b99af2','#ff9f4a'];
+    for(let x=10,i=0;x<W;x+=22,i++){const sw=reduce?0:Math.sin(t*2+i)*1.2;ctx.strokeStyle='#4f8f3a';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x,soilY+2);ctx.lineTo(x+sw,soilY-9);ctx.stroke();
+      ctx.fillStyle=cols[i%cols.length];for(let k=0;k<5;k++){const a=k*1.2566;ctx.beginPath();ctx.arc(x+sw+Math.cos(a)*2.6,soilY-10+Math.sin(a)*2.6,2.1,0,7);ctx.fill()}ctx.fillStyle='#f2c53d';ctx.beginPath();ctx.arc(x+sw,soilY-10,1.6,0,7);ctx.fill()}
+  }
+  if(S.lv>=3){
+    const bx=W*.9,by=soilY,h=H*.17,w=h*.32;
+    ctx.fillStyle=st===3?'#c9cbe0':'#f4efe4';ctx.beginPath();ctx.moveTo(bx-w/2,by);ctx.lineTo(bx-w*.3,by-h);ctx.lineTo(bx+w*.3,by-h);ctx.lineTo(bx+w/2,by);ctx.fill();
+    ctx.fillStyle='#b5523a';ctx.beginPath();ctx.moveTo(bx-w*.42,by-h);ctx.lineTo(bx,by-h-h*.18);ctx.lineTo(bx+w*.42,by-h);ctx.fill();
+    ctx.fillStyle='#7a4f28';rr(ctx,bx-w*.12,by-h*.28,w*.24,h*.28,3);ctx.fill();
+    const hx=bx,hy=by-h*.92,L=h*.62;
+    ctx.save();ctx.translate(hx,hy);ctx.rotate(reduce?.4:t*1.4);
+    for(let i=0;i<4;i++){ctx.rotate(Math.PI/2);ctx.fillStyle='#8a5a30';ctx.fillRect(-1.2,0,2.4,L);ctx.fillStyle='rgba(255,255,255,.92)';ctx.fillRect(1.2,L*.25,L*.2,L*.72);ctx.strokeStyle='rgba(120,80,40,.5)';ctx.lineWidth=.8;ctx.strokeRect(1.2,L*.25,L*.2,L*.72)}
+    ctx.restore();ctx.fillStyle='#5a3a1e';ctx.beginPath();ctx.arc(hx,hy,3,0,7);ctx.fill();
+  }
+  if(S.kakashi>0){
+    const x=W*.035+12,y=soilY+H*.07,h=H*.16,gold=S.kakashi>=COSTS.kakashi.length,sw=reduce?0:Math.sin(t*1.5)*.04;
+    ctx.save();ctx.translate(x,y);ctx.rotate(sw);
+    ctx.fillStyle='#7a5434';ctx.fillRect(-1.5,-h,3,h);ctx.fillRect(-h*.35,-h*.72,h*.7,3);
+    ctx.fillStyle=gold?'#f2c53d':'#c86a4a';rr(ctx,-h*.17,-h*.78,h*.34,h*.4,4);ctx.fill();
+    ctx.fillStyle='#e8d6a8';ctx.beginPath();ctx.arc(0,-h*.88,h*.13,0,7);ctx.fill();
+    ctx.fillStyle=gold?'#f2c53d':'#d9b45a';ctx.beginPath();ctx.ellipse(0,-h*.98,h*.24,h*.05,0,0,7);ctx.fill();ctx.beginPath();ctx.ellipse(0,-h*1.02,h*.12,h*.08,0,Math.PI,0);ctx.fill();
+    ctx.fillStyle='#3a2a22';ctx.beginPath();ctx.arc(-h*.045,-h*.89,1.3,0,7);ctx.arc(h*.045,-h*.89,1.3,0,7);ctx.fill();
+    ctx.strokeStyle='#3a2a22';ctx.lineWidth=1;ctx.beginPath();ctx.arc(0,-h*.86,h*.04,.3,Math.PI-.3);ctx.stroke();
+    ctx.restore();
+  }
+}
+function decorShopCat(t,x,y){
+  const s=Math.min(H,W)*.06,tail=reduce?0:Math.sin(t*2.4)*.5,blink=((t%4.2)<.15);
+  ctx.save();
+  ctx.strokeStyle='#e39a4f';ctx.lineWidth=s*.22;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x+s*.5,y-s*.3);ctx.quadraticCurveTo(x+s*1.3,y-s*.4,x+s*1.1+tail*s*.6,y-s*1.3);ctx.stroke();
+  ctx.fillStyle='#f0aa60';ctx.beginPath();ctx.ellipse(x,y-s*.55,s*.7,s*.6,0,0,7);ctx.fill();
+  const hy=y-s*1.35;[-1,1].forEach(d=>{ctx.beginPath();ctx.moveTo(x+d*s*.5,hy-s*.1);ctx.lineTo(x+d*s*.42,hy-s*.7);ctx.lineTo(x+d*s*.08,hy-s*.42);ctx.closePath();ctx.fill()});
+  ctx.beginPath();ctx.ellipse(x,hy,s*.52,s*.45,0,0,7);ctx.fill();
+  ctx.fillStyle='#d9803a';ctx.beginPath();ctx.ellipse(x+s*.25,hy-s*.25,s*.2,s*.12,0,0,7);ctx.fill();
+  ctx.strokeStyle='#3a2a22';ctx.fillStyle='#3a2a22';ctx.lineWidth=1.4;
+  [-1,1].forEach(d=>{ctx.beginPath();if(blink){ctx.moveTo(x+d*s*.26,hy);ctx.lineTo(x+d*s*.12,hy)}else ctx.arc(x+d*s*.19,hy,s*.06,0,7);blink?ctx.stroke():ctx.fill()});
+  ctx.fillStyle='#e58a8a';ctx.beginPath();ctx.arc(x,hy+s*.13,s*.05,0,7);ctx.fill();
+  ctx.fillStyle='#c0392b';ctx.fillRect(x-s*.4,hy+s*.33,s*.8,s*.1);ctx.fillStyle='#f2c53d';ctx.beginPath();ctx.arc(x,hy+s*.47,s*.08,0,7);ctx.fill();
+  ctx.restore();
+}
 let shownCoins=0;
 function draw(tms){
   const t=tms/1000,dt=Math.min(.1,(tms-lastDraw)/1000);lastDraw=tms;
@@ -966,7 +1148,7 @@ function draw(tms){
   const st=S.stage,f=S.fields[st];
   ctx.clearRect(0,0,W,H);
   if(view==='shop'){drawStall(t,dt);rainFx(t);drawParts(dt);return}
-  const soil=scenery(st,t);ambientBack(st,t);weatherFx(t);grass(st,H*.3);
+  const soil=scenery(st,t);ambientBack(st,t);weatherFx(t);grass(st,H*.3);decorField(st,t);
   const L=layout(),now=Date.now();
   f.forEach((sl,i)=>{
     const p=L[i];if(!p)return;const sp=SPI[sl.sp],s=p.s;
@@ -985,11 +1167,12 @@ function draw(tms){
       ctx.translate(p.x,p.gy);ctx.rotate(a);ctx.translate(-p.x,-p.gy);
       ctx.beginPath();ctx.rect(0,0,W,p.gy+s*.05);ctx.clip();
       const peek=sp.shape==='cat'||sp.shape==='rabbit'?s*1.0:sp.shape==='boot'||sp.shape==='chest'?s*.7:sp.shape==='shell'?s*.55:s*.72;
+      if(sl.shiny){ctx.shadowColor='#ffd84a';ctx.shadowBlur=reduce?14:12+Math.sin(t*5)*6}
       drawSp(ctx,sp,p.x,p.gy-peek-hop,s,{blink});
     }
     ctx.restore();
     ctx.fillStyle=soil[2];ctx.beginPath();ctx.ellipse(p.x,p.gy+s*.03,s*.55,s*.12,0,0,7);ctx.fill();
-    if(prog>=1&&sp.r>=3){ctx.fillStyle=sp.r>=4?'#ffe07a':'#fff6c8';const a=t*2+i;twinkle(ctx,p.x+Math.cos(a)*s*.9,p.gy-s*.9+Math.sin(a)*s*.25,s*.13)}
+    if(prog>=1&&(sp.r>=3||sl.shiny)){ctx.fillStyle=sp.r>=4||sl.shiny?'#ffe07a':'#fff6c8';const a=t*2+i;twinkle(ctx,p.x+Math.cos(a)*s*.9,p.gy-s*.9+Math.sin(a)*s*.25,s*.13);if(sl.shiny){twinkle(ctx,p.x+Math.cos(a+2.1)*s*.8,p.gy-s*1.1+Math.sin(a+2.1)*s*.3,s*.1);twinkle(ctx,p.x+Math.cos(a+4.2)*s*.85,p.gy-s*.7+Math.sin(a+4.2)*s*.3,s*.08)}}
   });
   // farmer
   const fr=farmerRT[st];
@@ -1005,11 +1188,12 @@ function draw(tms){
     const rot=(reduce?0:Math.sin(a.t*14)*.12*(1-e));ctx.translate(a.x,top+s);ctx.rotate(rot);
     if(!reduce){const q=a.t<.12?1-a.t/.12*.25:a.t<.32?.75+(a.t-.12)/.2*.4:1.15-Math.min(.15,(a.t-.32)*.6);ctx.scale(2-q>1.2?1.2:2-q,q)}
     ctx.translate(-a.x,-(top+s));
+    if(a.shiny){ctx.shadowColor='#ffd84a';ctx.shadowBlur=20}
     drawSp(ctx,sp,a.x,top,s,{});
     ctx.restore();
     ctx.save();ctx.globalAlpha=a.t>1?Math.max(0,1-(a.t-1)/.4):Math.min(1,a.t*5);
     ctx.textAlign='center';ctx.font='700 13px "Zen Maru Gothic",sans-serif';ctx.lineWidth=3.5;ctx.strokeStyle='rgba(40,30,20,.85)';
-    const ty=top-s*.75;const label=sp.name+(a.bonus?'（おまけ+1）':'');
+    const ty=top-s*.75;const label=(a.shiny?'きらきら！':'')+sp.name+(a.bonus?'（おまけ+1）':'');
     ctx.strokeText(label,a.x,ty);ctx.fillStyle='#fff';ctx.fillText(label,a.x,ty);
     let ty2=ty-17;
     if(a.combo>1){ctx.font='13px "Mochiy Pop One",sans-serif';const cl='コンボ×'+a.combo;ctx.strokeText(cl,a.x,ty2);ctx.fillStyle='#ffb04a';ctx.fillText(cl,a.x,ty2);ty2-=17}
@@ -1031,11 +1215,18 @@ function draw(tms){
 let touched=new Set(),combo=0;
 let fullWarn=0;
 function warnFull(){if(Date.now()-fullWarn>4000){fullWarn=Date.now();sfx('full');toast('倉庫がいっぱい。直売所で売るか、卸して空けよう')}}
-function collect(st,sp,silent){
+function collect(st,sp,silent,shiny){
   if(invFull())return null;
   const isNew=!S.dex[sp.id];
   S.dex[sp.id]=(S.dex[sp.id]||0)+1;S.harv++;S.inv[sp.id]=(S.inv[sp.id]||0)+1;
   autoShelf(sp.id);
+  let xp=1+(sp.r===3?10:sp.r===4?50:0)+(isNew?20:0);
+  if(sp.r>=3)S.st.rare++;
+  if(shiny){
+    const bonus=Math.round(sp.val*fieldMult(st)*20*rankMult());S.coins+=bonus;S.total+=bonus;S.st.kira++;S.shiny[sp.id]=(S.shiny[sp.id]||0)+1;xp+=100;dexDirty=true;
+    if(!simming){toast('きらきらの'+sp.name+'！ ボーナス +'+fmt(bonus)+'円');sfx('kira')}
+  }
+  gainXp(xp);
   if(isNew){
     dexDirty=true;
     if(!silent){
@@ -1052,11 +1243,12 @@ function harvestAt(i,quiet,opt){
   if(!ripe(sl)){if(!quiet&&p)pops.push({x:p.x,y:p.gy-p.s*.7,t:0,text:'あと'+fmtSec((sl.t0+sl.dur-Date.now())/1000)});return false}
   if(invFull()){if(p&&!opt.farmer)pops.push({x:p.x,y:p.gy-p.s*.7,t:0,text:'倉庫がいっぱい'});if(!opt.farmer)warnFull();return false}
   const sp=SPI[sl.sp];
-  const r=collect(st,sp,!!opt.farmer);
+  const r=collect(st,sp,!!opt.farmer,sl.shiny);
   let bonus=false;
   if((opt.combo||0)>=3&&Math.random()<.3&&!invFull()){S.inv[sp.id]++;bonus=true}
   if(p){
-    anims.push({sp:sp.id,x:p.x,gy:p.gy,s:p.s,t:0,isNew:r.isNew,combo:opt.combo||0,bonus});
+    anims.push({sp:sp.id,x:p.x,gy:p.gy,s:p.s,t:0,isNew:r.isNew,combo:opt.combo||0,bonus,shiny:sl.shiny});
+    if(sl.shiny)burst(p.x,p.gy-p.s*.8,'star',20,p.s*1.3);
     burst(p.x,p.gy,'dirt',opt.farmer?5:9,p.s);burst(p.x,p.gy-p.s*.4,'leaf',opt.farmer?1:3,p.s);
     if(sp.r>=3||r.isNew)burst(p.x,p.gy-p.s*.8,'star',sp.r>=3?12:6,p.s);
     sfx('pop',opt.farmer?-3:(opt.combo||1)-1);
@@ -1067,7 +1259,7 @@ function harvestAt(i,quiet,opt){
 }
 function comboHarvest(i,quiet){
   const n=combo+1;
-  if(harvestAt(i,quiet,{combo:n})){combo=n;return true}
+  if(harvestAt(i,quiet,{combo:n})){combo=n;if(n>S.st.combo)S.st.combo=n;return true}
   return false;
 }
 
@@ -1111,7 +1303,7 @@ function simFarmers(from,end,acc){
       tt+=iv;const f=S.fields[st];let bi=-1,bt=Infinity;
       f.forEach((sl,i)=>{const r=sl.t0+sl.dur;if(r<=tt&&r<bt){bt=r;bi=i}});
       if(bi<0){const nx=Math.min(...f.map(sl=>sl.t0+sl.dur));if(!isFinite(nx)||nx>end)break;tt=Math.max(tt,nx-iv);continue}
-      const sp=SPI[f[bi].sp];const r=collect(st,sp,true);if(!r)break;
+      const sp=SPI[f[bi].sp];const r=collect(st,sp,true,f[bi].shiny);if(!r)break;
       acc.n++;if(r.isNew)acc.news.push(sp.name);
       f[bi]=plant(st,tt);
     }
@@ -1123,9 +1315,11 @@ function simCustomers(ms,acc){
   while(custAcc>=1){custAcc--;const r=serve(newCust());acc.sold+=r.n;acc.coins+=r.paid;acc.cust++}
 }
 function simulateAway(from,to){
-  const end=Math.min(to,from+8*3600*1000);const acc={n:0,news:[],sold:0,coins:0,cust:0};
-  for(let a=from;a<end;a+=60000){const b=Math.min(end,a+60000);simFarmers(a,b,acc);simCustomers(b-a,acc)}
-  custs=[];
+  const end=Math.min(to,from+8*3600*1000);const acc={n:0,news:[],sold:0,coins:0,cust:0,lv0:S.lv};
+  simming=true;lvGain=0;
+  try{for(let a=from;a<end;a+=60000){const b=Math.min(end,a+60000);simFarmers(a,b,acc);simCustomers(b-a,acc)}}finally{simming=false}
+  S.req.forEach((q,i)=>{if(!q&&S.reqNext[i]<=end){const r=newReq();if(r)S.req[i]=r}});reqSig='';
+  custs=[];acc.lvUp=S.lv>acc.lv0;
   return acc;
 }
 
@@ -1307,7 +1501,7 @@ function renderDex(){
   const found=SP.filter(s=>S.dex[s.id]).length;
   $('#dexline').textContent='図鑑 '+found+' / '+SP.length;
   $('#dexcount').textContent=found+' / '+SP.length;
-  $('#dexharv').textContent='収穫 '+S.harv.toLocaleString('ja-JP')+'本';
+  $('#dexharv').textContent='収穫 '+S.harv.toLocaleString('ja-JP')+'本 ・ きらきら '+SP.filter(x=>S.shiny[x.id]).length+' / '+SP.length;
   $('#dexbar').style.width=(found/SP.length*100)+'%';
   const sig=SP.map(s=>S.dex[s.id]?1:0).join('')+(dexSel||'');
   if(sig===dexSig&&!dexDirty){updateDetailCount();return}
@@ -1320,6 +1514,7 @@ function renderDex(){
       const known=!!S.dex[sp.id];
       const b=document.createElement('button');b.type='button';b.className='card'+(known?'':' unknown');b.setAttribute('aria-pressed',dexSel===sp.id?'true':'false');
       const c=document.createElement('canvas');b.appendChild(c);const n=document.createElement('span');n.textContent=known?sp.name:'？？？';b.appendChild(n);
+      if(S.shiny[sp.id]){const k=document.createElement('i');k.className='kira';k.textContent='✦';k.title='きらきら';b.appendChild(k)}
       b.setAttribute('aria-label',known?sp.name:'まだ見つけていないやさいっこ');
       b.onclick=()=>{dexSel=sp.id;dexDirty=true;renderDex()};
       box.appendChild(b);miniCanvas(c,sp,!known,64,72);
@@ -1337,20 +1532,84 @@ function renderDex(){
   info.querySelector('.cnt').dataset.id=sp.id;
   det.appendChild(info);updateDetailCount();
 }
-function updateDetailCount(){const el=document.querySelector('#detail .cnt');if(!el)return;const sp=SPI[el.dataset.id],n=S.dex[sp.id]||0;el.textContent=n?'収穫 '+n+'本 ・ ふつう値 '+fmt(unitPrice(sp,1))+'円 ・ 倉庫に '+(S.inv[sp.id]||0)+'本':''}
+function updateDetailCount(){const el=document.querySelector('#detail .cnt');if(!el)return;const sp=SPI[el.dataset.id],n=S.dex[sp.id]||0;el.textContent=n?(S.shiny[sp.id]?'きらきら '+S.shiny[sp.id]+'回 ・ ':'')+'収穫 '+n+'本 ・ ふつう値 '+fmt(unitPrice(sp,1))+'円 ・ 倉庫に '+(S.inv[sp.id]||0)+'本':''}
 
 /* ---------- tabs ---------- */
+let curTab='shop';
 function selectTab(which){
-  const shop=which==='shop';
-  $('#t-shop').setAttribute('aria-selected',shop);$('#t-dex').setAttribute('aria-selected',!shop);
-  $('#p-shop').hidden=!shop;$('#p-dex').hidden=shop;if(!shop){dexDirty=true;renderDex()}
+  curTab=which;
+  ['shop','req','ach','dex'].forEach(k=>{$('#t-'+k).setAttribute('aria-selected',k===which);$('#p-'+k).hidden=k!==which});
+  if(which==='dex'){dexDirty=true;renderDex()}
+  if(which==='req'){reqSig='';renderReq()}
+  if(which==='ach'){achSig='';renderAch()}
 }
 $('#t-shop').onclick=()=>selectTab('shop');
+$('#t-req').onclick=()=>selectTab('req');$('#t-ach').onclick=()=>selectTab('ach');
+$('#reroll').onclick=rerollReqs;
+$('#pill-req').onclick=()=>{selectTab('req');const b=document.querySelector('.book');if(b&&b.scrollIntoView)b.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'})};
+$('#banner-x').onclick=()=>{$('#banner').hidden=true};
+let bannerT=0;
+function showBanner(t,p){$('#banner-t').textContent=t;$('#banner-p').textContent=p;const b=$('#banner');b.hidden=false;b.classList.remove('pop');void b.offsetWidth;b.classList.add('pop');clearTimeout(bannerT);bannerT=setTimeout(()=>b.hidden=true,9000)}
+function renderReq(){
+  const box=$('#reqs');
+  const sig=JSON.stringify(S.req);
+  if(sig!==reqSig){
+    reqSig=sig;box.innerHTML='';
+    S.req.forEach((q,i)=>{
+      const d=document.createElement('div');
+      if(!q){d.className='req empty';d.innerHTML='<span class="rwait" data-i="'+i+'"></span>';box.appendChild(d);return}
+      const sp=SPI[q.sp];d.className='req';
+      const c=document.createElement('canvas');d.appendChild(c);
+      const info=document.createElement('div');info.className='rinfo';
+      info.innerHTML='<div class="rwho"></div><div class="rwant"></div><div class="rhave" data-i="'+i+'"></div><div class="rrew"></div>';
+      info.querySelector('.rwho').textContent=q.who;
+      info.querySelector('.rwant').textContent='「'+sp.name+'を '+q.n+'本 ほしいな」';
+      info.querySelector('.rrew').textContent='お礼 '+fmt(q.coins)+'円 ・ 経験値 +'+q.xp;
+      d.appendChild(info);
+      const b=document.createElement('button');b.type='button';b.className='buy';b.dataset.i=i;b.textContent='わたす';b.onclick=()=>deliver(i);d.appendChild(b);
+      box.appendChild(d);miniCanvas(c,sp,false,48,54);
+    });
+  }
+  box.querySelectorAll('.rhave').forEach(el=>{const q=S.req[+el.dataset.i];if(!q)return;const h=S.inv[q.sp]||0;el.textContent='倉庫に '+h+' / '+q.n+'本';el.classList.toggle('ok',h>=q.n)});
+  box.querySelectorAll('.req .buy').forEach(b=>{const q=S.req[+b.dataset.i];const ok=q&&(S.inv[q.sp]||0)>=q.n;b.classList.toggle('poor',!ok);b.setAttribute('aria-disabled',ok?'false':'true');b.parentNode.classList.toggle('ok',!!ok)});
+  box.querySelectorAll('.rwait').forEach(el=>{const i=+el.dataset.i;el.textContent=SP.some(x=>S.dex[x.id])?'次のお願いが届くまで、あと '+fmtSec((S.reqNext[i]-Date.now())/1000):'やさいっこを収穫すると、町の人からお願いが届くようになります'});
+  const rr=$('#reroll'),cd=S.rerollAt-Date.now();rr.disabled=cd>0;rr.textContent=cd>0?'かえられるまで '+fmtSec(cd/1000):'ほかのお願いにかえる';
+}
+function renderAch(){
+  const box=$('#achs');
+  const sig=ACH.map(a=>(S.ach[a.id]||0)+':'+(a.get()>=(a.tiers[S.ach[a.id]||0]||Infinity))).join();
+  if(sig!==achSig){
+    achSig=sig;box.innerHTML='';
+    ACH.forEach(a=>{
+      const k=S.ach[a.id]||0,done=k>=a.tiers.length,goal=done?a.tiers[a.tiers.length-1]:a.tiers[k],ok=!done&&a.get()>=goal;
+      const d=document.createElement('div');d.className='ach'+(ok?' ok':'')+(done?' done':'');
+      d.innerHTML='<div class="amain"><div class="aname"><span></span><span class="astars"></span></div><div class="agoal"></div><div class="need"><span class="pbar"><i></i></span><span class="needt" data-a="'+a.id+'"></span></div></div>';
+      d.querySelector('.aname span').textContent=a.name;
+      d.querySelector('.astars').textContent='★'.repeat(k)+'☆'.repeat(a.tiers.length-k);
+      d.querySelector('.agoal').textContent=done?'すべて達成！':'目標：'+fmt(goal)+a.unit+'　ごほうび '+fmt(achReward(k).coins)+'円 ・ 経験値 +'+achReward(k).xp;
+      const b=document.createElement('button');b.type='button';b.className='buy'+(done?' done':ok?'':' poor');b.textContent=done?'達成':ok?'受け取る':'まだ';
+      if(ok)b.onclick=()=>claimAch(a.id);
+      d.appendChild(b);box.appendChild(d);
+    });
+  }
+  box.querySelectorAll('.needt').forEach(el=>{const a=ACH.find(x=>x.id===el.dataset.a),k=S.ach[a.id]||0,goal=a.tiers[Math.min(k,a.tiers.length-1)],v=a.get();
+    el.textContent=fmt(Math.min(v,goal))+' / '+fmt(goal)+a.unit;el.parentNode.querySelector('.pbar i').style.width=Math.min(100,v/goal*100)+'%'});
+  const tot=ACH.reduce((a,x)=>a+x.tiers.length,0),got=ACH.reduce((a,x)=>a+(S.ach[x.id]||0),0);
+  $('#achcount').textContent='実績 ★'+got+' / '+tot;$('#achsub').textContent='ランク Lv'+S.lv+'「'+title(S.lv)+'」';
+}
 $('#quick-all').onclick=()=>{selectTab('shop');const b=document.querySelector('.book');if(b&&b.scrollIntoView)b.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'})};$('#t-dex').onclick=()=>selectTab('dex');
 
 /* ---------- status / ui ---------- */
 function updateUI(){
   $('#coins').textContent=fmt(S.coins);
+  $('#rlv').textContent='Lv'+S.lv;$('#rtitle').textContent=title(S.lv);$('#rbar').style.width=Math.min(100,S.xp/needXp(S.lv)*100)+'%';
+  $('.rank').title='次のランクまで 経験値 '+(needXp(S.lv)-S.xp);
+  const canDeliver=S.req.filter(q=>q&&(S.inv[q.sp]||0)>=q.n).length;
+  const tr=$('#t-req .n');tr.hidden=!canDeliver;tr.textContent=canDeliver;
+  const pr=$('#pill-req');pr.hidden=!canDeliver;pr.textContent='お願い '+canDeliver+'件 わたせます';
+  const ac=achClaimable(),ta=$('#t-ach .n');ta.hidden=!ac;ta.textContent=ac;
+  const sc=$('#sale');if(SALE.sp&&saleOn(SALE.sp)){sc.hidden=false;const on=S.shelf.some(x=>x&&x.sp===SALE.sp);sc.textContent='特売タイム：'+SPI[SALE.sp].name+'が1.5倍・あと'+fmtSec((SALE.until-Date.now())/1000)+(on?'（棚にあります）':'（棚に並べると売れやすい）')}else sc.hidden=true;
+  if(curTab==='req')renderReq();if(curTab==='ach')renderAch();
   const f=S.fields[S.stage],now=Date.now();
   const r=f.filter(ripe).length;
   const next=f.filter(s=>!ripe(s)).reduce((m,s)=>Math.min(m,s.t0+s.dur-now),Infinity);
@@ -1461,7 +1720,7 @@ let lastTick=Date.now();
 function tick(){
   const now=Date.now(),dt=(now-lastTick)/1000;lastTick=now;
   if(dt>5){awayReport(simulateAway(now-dt*1000,now),dt);return}
-  weatherTick(dt);farmerTick(dt);custTick(dt);
+  weatherTick(dt);farmerTick(dt);custTick(dt);saleTick();reqTick();
 }
 function awayReport(r,sec){
   dexDirty=true;stallSig='';
@@ -1469,6 +1728,7 @@ function awayReport(r,sec){
   if(r.n||r.sold){
     let m='おかえりなさい。留守のあいだに'+(r.n?'農家さんが '+r.n+'本 収穫し、':'')+'直売所では '+r.cust+'人 のお客さんに '+r.sold+'本 売れて、'+fmt(r.coins)+'円 になりました';
     if(invFull())m+='。倉庫がいっぱいです';
+    if(r.lvUp)m+='。ランクが Lv'+S.lv+'「'+title(S.lv)+'」に上がりました';
     if(r.news.length)m+='。新しく見つけた子：'+r.news.slice(0,4).join('、')+(r.news.length>4?' ほか'+(r.news.length-4)+'種':'');
     showWelcome(m);dexDirty=true;
   }else if(sec>60){let n=0;S.fields.forEach((f,i)=>{if(S.unlocked[i])n+=f.filter(ripe).length});if(n)toast('おかえりなさい。'+n+'本 育っていました')}
