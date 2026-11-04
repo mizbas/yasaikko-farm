@@ -166,6 +166,9 @@ h1{font-size:30px;letter-spacing:.02em;text-shadow:0 2px 0 var(--dot)}
 .snd i{font-style:normal;width:22px;height:22px;display:grid;place-items:center;border-radius:50%;background:var(--panel-2);font-size:13px}
 .snd[aria-pressed="true"]{color:var(--ink)}
 .snd[aria-pressed="true"] i{background:var(--accent);color:var(--accent-ink);animation:beat 1s ease-in-out infinite}
+.snd.wait{border-color:var(--accent);color:var(--accent);animation:nudge 1.6s ease-in-out infinite}
+.snd.wait i{animation:none}
+@keyframes nudge{0%,100%{transform:none}50%{transform:translateY(-2px)}}
 .snd[aria-pressed="false"] span{text-decoration:line-through;text-decoration-color:var(--muted)}
 @keyframes beat{50%{transform:scale(1.15) rotate(-8deg)}}
 .book,#cv,.views,.welcome{box-shadow:var(--shadow)}
@@ -178,7 +181,7 @@ h1{font-size:30px;letter-spacing:.02em;text-shadow:0 2px 0 var(--dot)}
 .toast{animation:toastIn .25s ease-out}
 @keyframes toastIn{from{opacity:0;transform:translate(-50%,10px)}}
 .views button[aria-selected="true"]{box-shadow:inset 0 -3px 0 rgba(0,0,0,.15)}
-@media (prefers-reduced-motion:reduce){.snd i{animation:none!important}.toast{animation:none}.item,.invi,.card{transition:none}}
+@media (prefers-reduced-motion:reduce){.snd i,.snd.wait{animation:none!important}.toast{animation:none}.item,.invi,.card{transition:none}}
 </style>
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
@@ -434,11 +437,16 @@ const SONGS={
 const AU={ctx:null,bgmG:null,sfxG:null,noise:null,on:{bgm:true,sfx:true},song:null,want:'field',step:0,next:0};
 try{const a=JSON.parse(localStorage.getItem(AKEY)||'{}');if(a.bgm!=null)AU.on.bgm=a.bgm;if(a.sfx!=null)AU.on.sfx=a.sfx}catch(e){}
 function auSavePref(){try{localStorage.setItem(AKEY,JSON.stringify(AU.on))}catch(e){}}
+function auUnlock(c){
+  try{const b=c.createBuffer(1,1,22050),src=c.createBufferSource();src.buffer=b;src.connect(c.destination);src.start(0)}catch(e){}
+  const r=c.resume&&c.resume();if(r&&r.then)r.then(updateSnd,()=>{});
+}
 function auInit(){
-  if(AU.ctx){if(AU.ctx.state==='suspended'&&!document.hidden)AU.ctx.resume();return}
+  try{if(navigator.audioSession)navigator.audioSession.type='playback'}catch(e){}
+  if(AU.ctx){if(AU.ctx.state!=='running'&&!document.hidden)auUnlock(AU.ctx);updateSnd();return}
   const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
   let c;try{c=new AC()}catch(e){return}
-  AU.ctx=c;
+  AU.ctx=c;if(c.addEventListener)c.addEventListener('statechange',updateSnd);
   const comp=c.createDynamicsCompressor();comp.connect(c.destination);
   const master=c.createGain();master.gain.value=.85;master.connect(comp);
   AU.bgmG=c.createGain();AU.bgmG.gain.value=AU.on.bgm?.42:0;AU.bgmG.connect(master);
@@ -446,7 +454,7 @@ function auInit(){
   const buf=c.createBuffer(1,c.sampleRate*.4,c.sampleRate),d=buf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;AU.noise=buf;
   AU.song=SONGS[AU.want];AU.step=0;AU.next=c.currentTime+.15;
   setInterval(auSchedule,25);
-  if(c.state==='suspended')c.resume();
+  auUnlock(c);
 }
 function tone(dest,o){
   const c=AU.ctx,t=o.t,osc=c.createOscillator(),g=c.createGain();
@@ -515,15 +523,18 @@ function sfx(name,arg){
 function updateSnd(){
   const b=$('#snd-bgm'),e=$('#snd-sfx');if(!b)return;
   b.setAttribute('aria-pressed',AU.on.bgm?'true':'false');e.setAttribute('aria-pressed',AU.on.sfx?'true':'false');
-  b.querySelector('span').textContent=AU.on.bgm?(SONGS[AU.want].name):'BGM オフ';
+  const live=AU.ctx&&AU.ctx.state==='running';
+  b.classList.toggle('wait',!live&&(AU.on.bgm||AU.on.sfx));
+  b.querySelector('span').textContent=!live&&(AU.on.bgm||AU.on.sfx)?'タップで音を出す':AU.on.bgm?(SONGS[AU.want].name):'BGM オフ';
 }
 function setSnd(kind){
+  const live=AU.ctx&&AU.ctx.state==='running';
+  if(!live&&AU.on[kind]){auInit();updateSnd();return}
   AU.on[kind]=!AU.on[kind];auSavePref();auInit();
   if(AU.ctx){const g=kind==='bgm'?AU.bgmG:AU.sfxG,v=AU.on[kind]?(kind==='bgm'?.42:.7):0;g.gain.setTargetAtTime(v,AU.ctx.currentTime,.08)}
   updateSnd();if(kind==='sfx')sfx('tap');
 }
-addEventListener('pointerdown',()=>{if(AU.on.bgm||AU.on.sfx)auInit()},{capture:true});
-addEventListener('keydown',()=>{if(AU.on.bgm||AU.on.sfx)auInit()},{capture:true});
+['pointerup','click','touchend','keydown'].forEach(ev=>addEventListener(ev,()=>{if(AU.on.bgm||AU.on.sfx)auInit()},{capture:true,passive:true}));
 document.addEventListener('visibilitychange',()=>{if(!AU.ctx)return;if(document.hidden)AU.ctx.suspend();else AU.ctx.resume()});
 
 /* ---------- drawing ---------- */
