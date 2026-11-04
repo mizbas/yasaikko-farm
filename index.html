@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#eef2e4">
 <title>やさいっこ畑</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -54,7 +55,7 @@ h1{font-family:var(--display);font-weight:400;font-size:28px;line-height:1.15;ma
 .dexline{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
 
 .grid{display:grid;grid-template-columns:minmax(0,1fr);gap:20px}
-@media (min-width:920px){.grid{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)}.farm{position:sticky;top:16px;align-self:start}}
+
 
 .farm{display:flex;flex-direction:column;gap:10px;min-width:0}
 .stages{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
@@ -263,6 +264,40 @@ h1{font-size:30px;letter-spacing:.02em;text-shadow:0 2px 0 var(--dot)}
 .ing.ok{background:var(--leaf);color:#fff}
 .rmeta{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
 .wx.season{font-weight:500;color:var(--muted)}
+
+/* ---- mobile-first shell ---- */
+.app{max-width:560px}
+body{padding-block:0 calc(84px + env(safe-area-inset-bottom,0px))}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:8;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px;flex-wrap:nowrap;margin:0 calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding:8px max(16px,env(safe-area-inset-right,0px)) 8px max(16px,env(safe-area-inset-left,0px));background:var(--bg);background:color-mix(in srgb,var(--bg) 88%,transparent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+#logo{width:40px;height:40px;border-radius:12px}
+.top .purse{text-align:left;min-width:0}
+.top .coins{font-size:24px;display:flex;align-items:baseline;gap:2px}
+.top .coins small{font-size:13px;margin:0}
+.top .rank{justify-content:flex-start;margin-top:0}
+.top .rtitle{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.top .sound{margin:0;flex-wrap:nowrap}
+.top .snd{padding:5px}
+.top .snd span{display:none}
+.top .snd.wait span{display:inline}
+.top .snd.wait{padding:5px 10px 5px 5px}
+.grid{gap:14px;margin-top:12px}
+.booktitle{font-family:var(--display);font-weight:400;font-size:20px;margin:0}
+nav.bottom{position:fixed;left:0;right:0;bottom:0;z-index:9;background:var(--panel);border-top:1px solid var(--line);box-shadow:0 -6px 20px -12px rgba(0,0,0,.35);padding:6px max(10px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-left,0px))}
+.bottom-in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
+nav.bottom button{position:relative;border:0;background:transparent;border-radius:14px;padding:6px 2px 5px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;color:var(--muted);font-size:11px;font-weight:700;min-height:54px;transition:background-color .15s,color .15s}
+nav.bottom svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}
+nav.bottom button[aria-current="page"]{color:var(--leaf);background:var(--panel-2)}
+nav.bottom button[aria-current="page"] svg{transform:translateY(-2px) scale(1.08)}
+nav.bottom button:active{transform:scale(.94)}
+nav.bottom .nb{position:absolute;top:2px;left:calc(50% + 6px);min-width:18px;padding:0 5px;border-radius:999px;background:var(--accent);color:var(--accent-ink);font-size:10px;line-height:17px;text-align:center;font-weight:700;box-shadow:0 0 0 2px var(--panel)}
+.stages{margin:0 calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding:0 max(16px,env(safe-area-inset-right,0px)) 2px max(16px,env(safe-area-inset-left,0px));scrollbar-width:none}
+.stages::-webkit-scrollbar{display:none}
+.book{padding:14px}
+.qrow{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (max-width:360px){.qrow{grid-template-columns:minmax(0,1fr)}}
+.farmbar .btn{min-height:40px}
+.sprk{display:none}
 </style>
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
@@ -271,27 +306,21 @@ h1{font-size:30px;letter-spacing:.02em;text-shadow:0 2px 0 var(--dot)}
 
 <div class="app">
   <header class="top">
-    <div class="brand">
-      <canvas id="logo" width="56" height="56" aria-hidden="true"></canvas>
-      <div>
-        <h1>やさいっこ畑</h1>
-        <p class="sub">育てて、ぬいて、直売所で売る。図鑑をぜんぶ埋めよう。</p>
-      </div>
+    <canvas id="logo" width="40" height="40" aria-hidden="true"></canvas>
+    <div class="purse">
+      <div class="coins" id="coinbox"><span id="coins">0</span><small>円</small></div>
+      <div class="rank"><span class="rlv" id="rlv">Lv1</span><span class="rtitle" id="rtitle">見習い農家</span><span class="rbar"><i id="rbar"></i></span></div>
     </div>
     <div class="sound" role="group" aria-label="音">
-      <button type="button" class="snd" id="snd-bgm" aria-pressed="true"><i aria-hidden="true">♪</i><span>はたけのうた</span></button>
-      <button type="button" class="snd" id="snd-sfx" aria-pressed="true"><i aria-hidden="true">♫</i><span>効果音</span></button>
+      <button type="button" class="snd" id="snd-bgm" aria-pressed="true" aria-label="BGM"><i aria-hidden="true">♪</i><span>はたけのうた</span></button>
+      <button type="button" class="snd" id="snd-sfx" aria-pressed="true" aria-label="効果音"><i aria-hidden="true">♫</i><span>効果音</span></button>
     </div>
-    <div class="purse">
-      <div class="coins" id="coinbox"><small>売上金</small><span id="coins">0</span>円</div>
-      <div class="rank"><span class="rlv" id="rlv">Lv1</span><span class="rtitle" id="rtitle">見習い農家</span><span class="rbar"><i id="rbar"></i></span></div>
-      <div class="dexline" id="dexline">図鑑 0 / 32</div>
-    </div>
+    <span class="dexline" id="dexline" hidden>図鑑 0 / 32</span>
   </header>
 
   <div class="grid">
-    <section class="farm" aria-label="畑と直売所">
-      <div class="views" role="tablist">
+    <section class="farm" id="play" aria-label="畑と直売所">
+      <div class="views" role="tablist" hidden>
         <button type="button" role="tab" id="v-field" aria-selected="true">畑 <span class="n" id="vn-field" hidden></span></button>
         <button type="button" role="tab" id="v-shop" aria-selected="false">直売所 <span class="n" id="vn-shop" hidden></span></button>
         <button type="button" role="tab" id="v-kitchen" aria-selected="false">台所 <span class="n" id="vn-kitchen" hidden></span></button>
@@ -329,7 +358,8 @@ h1{font-size:30px;letter-spacing:.02em;text-shadow:0 2px 0 var(--dot)}
       </div>
     </section>
 
-    <section class="book" aria-label="帳面">
+    <section class="book" id="book" aria-label="強化とノート" hidden>
+      <h2 class="booktitle" id="booktitle">強化</h2>
       <div class="tabs" role="tablist">
         <button type="button" role="tab" id="t-shop" aria-selected="true">道具屋 <span class="n" hidden></span></button>
         <button type="button" role="tab" id="t-req" aria-selected="false">お願い <span class="n" hidden></span></button>
@@ -358,6 +388,15 @@ h1{font-size:30px;letter-spacing:.02em;text-shadow:0 2px 0 var(--dot)}
     </section>
   </div>
 </div>
+<nav class="bottom" aria-label="画面の切りかえ">
+  <div class="bottom-in">
+    <button type="button" data-sc="field" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21v-8M12 13c0-4-3-6-7-6 0 4 3 6 7 6zM12 11c0-4 3-7 7-7 0 4-3 7-7 7z"/></svg><span>畑</span><b class="nb" hidden></b></button>
+    <button type="button" data-sc="shop"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9l2-5h14l2 5M3 9h18M3 9c0 2 1.5 3 3 3s3-1 3-3c0 2 1.5 3 3 3s3-1 3-3c0 2 1.5 3 3 3s3-1 3-3M5 12v8h14v-8M10 20v-5h4v5"/></svg><span>直売所</span><b class="nb" hidden></b></button>
+    <button type="button" data-sc="kitchen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10h16v6a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4zM2 10h2M20 10h2M9 7c0-1.2 1-1.2 1-2.4M14 7c0-1.2 1-1.2 1-2.4"/></svg><span>台所</span><b class="nb" hidden></b></button>
+    <button type="button" data-sc="up"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 18V6M6.5 11.5L12 6l5.5 5.5M5 21h14"/></svg><span>強化</span><b class="nb" hidden></b></button>
+    <button type="button" data-sc="note"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15H6.5A1.5 1.5 0 0 0 5 19.5zM5 19.5V4.5M5 19.5A1.5 1.5 0 0 0 6.5 21H19v-3M9 7.5h6M9 11h6"/></svg><span>ノート</span><b class="nb" hidden></b></button>
+  </div>
+</nav>
 <div class="toast" id="toast" role="status" hidden></div>
 
 <script>
@@ -420,7 +459,7 @@ const SPI={};SP.forEach(s=>SPI[s.id]=s);
 const STARS=r=>'★'.repeat(r)+'☆'.repeat(4-r);
 
 /* ---------- state ---------- */
-const COSTS={fert:[40,250,1500,9000,60000,400000,3e6,2.5e7],une:[150,2500,200000],kakashi:[500,6000,80000,1.2e6],tractor:[5000,40000,400000,4e6,4e7],stove:[15000,150000,1.5e6]};
+const COSTS={fert:[40,250,1500,9000,60000,400000,3e6,2.5e7],une:[150,2500,200000],kakashi:[500,6000,80000,1.2e6],tractor:[5000,40000,400000,4e6,4e7],stove:[15000,150000,1.5e6],hinshu:[20000,200000,2e6,2e7,2e8],sprink:[8000,120000,1.5e6],reji:[3000,60000]};
 const TRAC_IV=[90,60,40,25,15];
 const NST=STAGES.length;
 COSTS.tana=[800,12000,300000];COSTS.kura=[300,5000,80000,1.2e6,2e7];COSTS.nobori=[600,9000,150000,2.5e6];
@@ -433,7 +472,7 @@ const CTYPES=[
   {id:'rich',name:'お金持ち',w:5,qty:()=>1,pay:2,shirt:'#3a3f6a',hat:'top'}
 ];
 function fresh(){return{coins:0,total:0,harv:0,stage:0,unlocked:[true,false,false,false,false],fert:0,une:0,kakashi:0,kago:false,dex:{},fields:[[],[],[],[],[]],farmers:[0,0,0,0,0],
-  inv:{},shelf:[null,null,null],tana:0,kura:0,nobori:0,rep:1,sold:0,sales:0,lv:1,xp:0,req:[null,null,null],reqNext:[0,0,0],rerollAt:0,ach:{},st:{kira:0,req:0,happy:0,rare:0,combo:0},shiny:{},tractor:0,truck:false,kitchen:false,stoves:1,chef:false,pot:false,burners:[null],dishes:{},cooked:0,v:5,last:Date.now()}}
+  inv:{},shelf:[null,null,null],tana:0,kura:0,nobori:0,rep:1,sold:0,sales:0,lv:1,xp:0,req:[null,null,null],reqNext:[0,0,0],rerollAt:0,ach:{},st:{kira:0,req:0,happy:0,rare:0,combo:0},shiny:{},tractor:0,truck:false,kitchen:false,stoves:1,chef:false,pot:false,burners:[null],dishes:{},cooked:0,hinshu:0,sprink:0,reji:0,menu:false,v:5,last:Date.now()}}
 function migrate(o){
   const s=Object.assign(fresh(),o);
   while(s.unlocked.length<NST)s.unlocked.push(false);
@@ -448,7 +487,7 @@ function migrate(o){
 const cap=()=>CAP[S.kura];
 const invTotal=()=>{let n=0;for(const k in S.inv)n+=S.inv[k];return n};
 const invFull=()=>invTotal()>=cap();
-const custIv=()=>9/(1+S.rep*0.35)/Math.pow(1.35,S.nobori);
+const custIv=()=>9/(1+S.rep*0.35)/Math.pow(1.35,S.nobori)/Math.pow(1.2,S.reji||0);
 
 /* ---------- rank / requests / achievements / sale ---------- */
 const TITLES=[[1,'見習い農家'],[3,'かけだし農家'],[5,'ふつうの農家'],[8,'腕ききの農家'],[12,'町の名物農家'],[16,'畑の名人'],[21,'やさいっこ博士'],[27,'伝説の農家'],[35,'やさいっこ王']];
@@ -487,7 +526,7 @@ function newReq(){
   let tot=0;const w=pool.map(x=>{const v=(x.r===1?4:x.r===2?2:1)*(1+x.st*.4);tot+=v;return v});
   let r=Math.random()*tot,sp=pool[0];for(let i=0;i<pool.length;i++){r-=w[i];if(r<=0){sp=pool[i];break}}
   const n=sp.r===1?3+Math.floor(Math.random()*(4+S.lv/3)):sp.r===2?2+Math.floor(Math.random()*3):1+(Math.random()<.3?1:0);
-  return{sp:sp.id,n,who:CLIENTS[Math.floor(Math.random()*CLIENTS.length)],coins:Math.round(sp.val*fieldMult(sp.st)*n*2.5*rankMult()),xp:Math.round(n*4*sp.r+6)};
+  return{sp:sp.id,n,who:CLIENTS[Math.floor(Math.random()*CLIENTS.length)],coins:Math.round(sp.val*fieldMult(sp.st)*n*2.5*rankMult()*hinshuMult()),xp:Math.round(n*4*sp.r+6)};
 }
 function reqTick(){
   const now=Date.now();
@@ -563,7 +602,7 @@ const RECIPES=[
 const RCI={};RECIPES.forEach(r=>RCI[r.id]=r);
 const rcKnown=rc=>Object.keys(rc.ing).every(id=>S.dex[id]);
 const rcCan=rc=>Object.entries(rc.ing).every(([id,n])=>(S.inv[id]||0)>=n);
-const rcValue=rc=>Math.round(Object.entries(rc.ing).reduce((a,[id,n])=>a+SPI[id].val*fieldMult(SPI[id].st)*n,0)*3*rankMult());
+const rcValue=rc=>Math.round(Object.entries(rc.ing).reduce((a,[id,n])=>a+SPI[id].val*fieldMult(SPI[id].st)*n,0)*3*rankMult()*hinshuMult()*(S.menu?1.3:1));
 const rcXp=rc=>Object.values(rc.ing).reduce((a,n)=>a+n,0)*3;
 const rcTime=rc=>rc.time*(S.pot?.6:1);
 let kitSig='',kAnims=[];
@@ -609,7 +648,7 @@ function tractorTick(dt){
   const now=Date.now(),iv=TRAC_IV[S.tractor-1]*1000;
   for(let st=0;st<NST;st++){
     if(!S.unlocked[st])continue;const T=TR[st];
-    const visible=st===S.stage&&view==='field'&&W>0;
+    const visible=st===S.stage&&view==='field'&&W>0&&!bookOpen;
     if(T.run&&!visible){harvestAllRipe(st);T.run=null;T.next=now+iv;continue}
     if(!T.run){
       if(now<T.next)continue;
@@ -633,7 +672,7 @@ function shipOverflow(silent){
   if(!silent&&Date.now()-truckMsg>20000){truckMsg=Date.now();toast('出荷トラックが '+n+'本を卸しました +'+fmt(v)+'円')}
   return v;
 }
-const unitPrice=(sp,pl)=>Math.max(1,Math.round(sp.val*fieldMult(sp.st)*PRICE[pl].m*rankMult()*(saleOn(sp.id)?1.5:1)*(shun(sp.id)?1.3:1)));
+const unitPrice=(sp,pl)=>Math.max(1,Math.round(sp.val*fieldMult(sp.st)*hinshuMult()*PRICE[pl].m*rankMult()*(saleOn(sp.id)?1.5:1)*(shun(sp.id)?1.3:1)));
 function autoShelf(id){
   if(S.shelf.some(x=>x&&x.sp===id))return;
   const i=S.shelf.indexOf(null);if(i>=0){S.shelf[i]={sp:id,price:1};stallSig=''}
@@ -683,7 +722,8 @@ function serve(c){
 let S=fresh();
 let view='field';
 const slotCount=()=>[6,9,12,16][S.une];
-const speed=()=>Math.pow(1.3,S.fert);
+const speed=()=>Math.pow(1.3,S.fert)*Math.pow(1.25,S.sprink||0);
+const hinshuMult=()=>Math.pow(1.2,S.hinshu||0);
 let WX={type:null,until:0,next:Date.now()+90000};
 const weatherOn=t=>WX.type===t&&Date.now()<WX.until;
 const luck=()=>Math.pow(1.6,S.kakashi)*(weatherOn('niji')?3:1);
@@ -816,7 +856,7 @@ function sfx(name,arg){
     case'tap':tone(d,{type:'sine',f:700,t,d:.06,v:.06});break;
     case'full':tone(d,{type:'square',f:200,t,d:.12,v:.04,filt:900});tone(d,{type:'square',f:160,t:t+.12,d:.18,v:.04,filt:900});break;
     case'rain':hiss(d,t,.05,3000,1.2);break;
-    case'putt':if(view==='field')tone(d,{type:'square',f:70+Math.random()*12,t,d:.06,v:.025,filt:300});break;
+    case'putt':if(view==='field'&&!bookOpen)tone(d,{type:'square',f:70+Math.random()*12,t,d:.06,v:.025,filt:300});break;
     case'level':[0,4,7,12,7,12,16,19].forEach((n,i)=>tone(d,{type:i<4?'triangle':'square',f:mf(67+n),t:t+i*.09,d:i===7?.8:.18,v:i<4?.08:.04,filt:3500}));break;
     case'kira':[0,7,12,16,19,24,28,31].forEach((n,i)=>tone(d,{type:'sine',f:mf(76+n),t:t+i*.05,d:.5,v:.07}));break;
   }
@@ -974,7 +1014,8 @@ function drawSp(c,sp,cx,top,s,o){
 const cv=$('#cv'),ctx=cv.getContext('2d');let W=0,H=0;
 const reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
 function resize(){
-  const d=Math.min(2,window.devicePixelRatio||1);W=cv.clientWidth;H=Math.round(Math.max(300,Math.min(480,W*0.78)));
+  if(!cv.clientWidth)return;
+  const d=Math.min(2,window.devicePixelRatio||1);W=cv.clientWidth;H=Math.round(Math.max(280,Math.min(420,W*0.8)));
   cv.style.height=H+'px';cv.width=Math.round(W*d);cv.height=Math.round(H*d);ctx.setTransform(d,0,0,d,0,0);
 }
 function layout(){
@@ -1230,6 +1271,17 @@ function ambientFront(st,t){
 
 function decorField(st,t){
   const soilY=H*.3;
+  if(S.sprink>0){
+    const L=layout();const rows=[...new Set(L.map(p=>Math.round(p.gy)))].sort((a,b)=>a-b);
+    const ys=rows.length>1?[(rows[0]+rows[1])/2-L[0].s*.6]:[rows[0]-L[0].s*1.4];
+    const xs=S.sprink>=2?[W*.33,W*.67]:[W*.5];
+    xs.forEach((x,k)=>ys.forEach(y=>{
+      ctx.fillStyle='#8a9aa8';ctx.fillRect(x-1.5,y-12,3,12);ctx.fillStyle='#5f6f7c';ctx.beginPath();ctx.arc(x,y-13,3,0,7);ctx.fill();
+      if(reduce)return;const a=Math.sin(t*1.6+k)*1.1;
+      for(let j=0;j<10;j++){const ph=(t*1.4+j/10)%1,ang=-Math.PI/2+a+(j%2?-.25:.25),dd=ph*W*.16;
+        ctx.fillStyle='rgba(140,200,255,'+(.75*(1-ph))+')';ctx.beginPath();ctx.arc(x+Math.cos(ang)*dd*1.4,y-13+Math.sin(ang)*dd*.5+ph*ph*W*.08,1.6,0,7);ctx.fill()}
+    }));
+  }
   if(S.lv>=7&&st!==3){
     const cols=['#f27a9a','#ffd34a','#ffffff','#b99af2','#ff9f4a'];
     for(let x=10,i=0;x<W;x+=22,i++){const sw=reduce?0:Math.sin(t*2+i)*1.2;ctx.strokeStyle='#4f8f3a';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x,soilY+2);ctx.lineTo(x+sw,soilY-9);ctx.stroke();
@@ -1452,7 +1504,7 @@ function collect(st,sp,silent,shiny){
   let xp=1+(sp.r===3?10:sp.r===4?50:0)+(isNew?20:0);
   if(sp.r>=3)S.st.rare++;
   if(shiny){
-    const bonus=Math.round(sp.val*fieldMult(st)*20*rankMult());S.coins+=bonus;S.total+=bonus;S.st.kira++;S.shiny[sp.id]=(S.shiny[sp.id]||0)+1;xp+=100;dexDirty=true;
+    const bonus=Math.round(sp.val*fieldMult(st)*20*rankMult()*hinshuMult());S.coins+=bonus;S.total+=bonus;S.st.kira++;S.shiny[sp.id]=(S.shiny[sp.id]||0)+1;xp+=100;dexDirty=true;
     if(!simming){toast('きらきらの'+sp.name+'！ ボーナス +'+fmt(bonus)+'円');sfx('kira')}
   }
   gainXp(xp);
@@ -1468,7 +1520,7 @@ function collect(st,sp,silent,shiny){
 function harvestAt(i,quiet,opt){
   opt=opt||{};const st=opt.st==null?S.stage:opt.st;
   const sl=S.fields[st][i];if(!sl)return false;
-  const p=st===S.stage&&view==='field'?layout()[i]:null;
+  const p=st===S.stage&&view==='field'&&!bookOpen?layout()[i]:null;
   if(!ripe(sl)){if(!quiet&&p)pops.push({x:p.x,y:p.gy-p.s*.7,t:0,text:'あと'+fmtSec((sl.t0+sl.dur-Date.now())/1000)});return false}
   if(invFull()){if(p&&!opt.farmer)pops.push({x:p.x,y:p.gy-p.s*.7,t:0,text:'倉庫がいっぱい'});if(!opt.farmer)warnFull();return false}
   const sp=SPI[sl.sp];
@@ -1505,7 +1557,7 @@ function farmerTick(dt){
     if(!S.unlocked[st]||!S.farmers[st])continue;
     const fr=farmerRT[st];fr.cool-=dt;fr.pull=Math.max(0,fr.pull-dt);
     if(invFull()){fr.target=-1;fr.walking=false;continue}
-    if(st!==S.stage||view!=='field'){
+    if(st!==S.stage||view!=='field'||bookOpen){
       fr.target=-1;if(st!==S.stage)fr.x=null;fr.walking=false;
       if(fr.cool<=0){const i=nearestRipe(st);if(i>=0){harvestAt(i,true,{st,farmer:true});fr.cool=farmIv(st)}else fr.cool=1}
       continue;
@@ -1572,7 +1624,7 @@ function custTick(dt){
   custs.forEach(c=>{
     c.t+=dt;
     if(c.state==='in'){const tx=W*SPOTS[c.spot];const d=tx-c.x;if(Math.abs(d)<3){c.state='wait';c.t=0}else c.x+=Math.sign(d)*Math.min(Math.abs(d),spd*dt)}
-    else if(c.state==='wait'&&c.t>1.6){c.res=serve(c);c.state='pay';c.t=0;if(c.res.paid){const cb=$('#coinbox');cb.classList.remove('bump');void cb.offsetWidth;cb.classList.add('bump')}}
+    else if(c.state==='wait'&&c.t>1.6*(1-.3*(S.reji||0))){c.res=serve(c);c.state='pay';c.t=0;if(c.res.paid){const cb=$('#coinbox');cb.classList.remove('bump');void cb.offsetWidth;cb.classList.add('bump')}}
     else if(c.state==='pay'&&c.t>1.3){c.state='out';c.t=0}
     else if(c.state==='out')c.x-=spd*dt;
   });
@@ -1606,7 +1658,7 @@ function renderStages(){
   const box=$('#stages');box.innerHTML='';
   STAGES.forEach((st,i)=>{
     const b=document.createElement('button');b.type='button';
-    if(!S.unlocked[i]){b.className='locked';b.textContent=st.short+'（未開拓）';b.onclick=()=>{selectTab('shop');toast(st.short+'はお店で '+fmt(st.cost)+'円 で開拓できます')}}
+    if(!S.unlocked[i]){b.className='locked';b.textContent=st.short+'（未開拓）';b.onclick=()=>{setScreen('up');toast(st.short+'は強化画面で '+fmt(st.cost)+'円 で開拓できます')}}
     else{b.setAttribute('aria-pressed',S.stage===i?'true':'false');b.innerHTML=st.short+'<span class="n" hidden></span>';b.onclick=()=>{if(S.stage!==i){S.stage=i;sfx('tap');renderStages();updateUI()}}}
     b.dataset.i=i;box.appendChild(b);
   });
@@ -1620,6 +1672,8 @@ function shopItems(){
     {id:'une',k:'畝',cat:'field',eff:[6,9,12,16][S.une]+' → '+[6,9,12,16][S.une+1]+'マス',name:'畝をひろげる',desc:'どの畑も、植えられる数が増える（6 → 9 → 12 → 16）',lv:S.une,max:COSTS.une.length,cost:COSTS.une[S.une]},
     {id:'kakashi',k:'守',cat:'field',eff:'レアが出やすく',name:'かかし',desc:'めずらしいやさいっこが出やすくなる',lv:S.kakashi,max:COSTS.kakashi.length,cost:COSTS.kakashi[S.kakashi]},
     {id:'tractor',k:'ト',cat:'field',eff:S.tractor?TRAC_IV[S.tractor-1]+' → '+TRAC_IV[Math.min(4,S.tractor)]+'秒ごと':'まとめて回収',name:'トラクター',desc:'一定時間ごとに畑を走って、育った子をまとめて回収する。どの畑でも、留守中も働く（'+TRAC_IV.join('→')+'秒ごと）',lv:S.tractor,max:COSTS.tractor.length,cost:COSTS.tractor[S.tractor]},
+    {id:'hinshu',k:'種',cat:'field',eff:'売値 ×1.2',name:'品種改良',desc:'すべてのやさいっこが、より高く売れるようになる（料理・お願い・きらきらにも効く）',lv:S.hinshu||0,max:COSTS.hinshu.length,cost:COSTS.hinshu[S.hinshu||0]},
+    {id:'sprink',k:'水',cat:'field',eff:'育つ速さ ×1.25',name:'スプリンクラー',desc:'水やりを自動にして、どの畑も速く育つ（新しく植えた分から）',lv:S.sprink||0,max:COSTS.sprink.length,cost:COSTS.sprink[S.sprink||0]},
     {id:'kago',k:'籠',cat:'field',eff:'まとめて収穫',name:'収穫かご',desc:'「まとめて収穫」ボタンが使えるようになる',lv:S.kago?1:0,max:1,cost:1200}
   ];
   const farmers=[];
@@ -1635,10 +1689,12 @@ function shopItems(){
   if(S.kitchen)kit.push(
     {id:'stove',k:'炎',cat:'kitchen',eff:S.stoves+' → '+(S.stoves+1)+'口',name:'コンロをふやす',desc:'同時に作れる料理の数が増える（最大4口）',lv:S.stoves-1,max:COSTS.stove.length,cost:COSTS.stove[S.stoves-1]},
     {id:'chef',k:'料',cat:'kitchen',eff:'おまかせ調理',name:'料理人さんを雇う',desc:'あいたコンロで、いちばん得な料理を自動で作ってくれる。留守中も作る',lv:S.chef?1:0,max:1,cost:30000},
+    {id:'menu',k:'品',cat:'kitchen',eff:'料理の売値 ×1.3',name:'お品書き',desc:'きれいなメニュー表で、料理が高く売れるようになる',lv:S.menu?1:0,max:1,cost:80000},
     {id:'pot',k:'鍋',cat:'kitchen',eff:'調理時間 ×0.6',name:'圧力なべ',desc:'料理ができるまでの時間が短くなる',lv:S.pot?1:0,max:1,cost:200000});
   const stall=[
     {id:'tana',k:'棚',cat:'shop',eff:SHELF[S.tana]+' → '+SHELF[S.tana+1]+'種',name:'棚をふやす',desc:'直売所に並べられる種類が増える（3 → 4 → 6 → 8）',lv:S.tana,max:COSTS.tana.length,cost:COSTS.tana[S.tana]},
     {id:'nobori',k:'旗',cat:'shop',eff:'お客さん ×1.35',name:'のぼり旗',desc:'目立つようになって、お客さんが1.35倍来る',lv:S.nobori,max:COSTS.nobori.length,cost:COSTS.nobori[S.nobori]},
+    {id:'reji',k:'レ',cat:'shop',eff:'お客さん ×1.2・会計が速い',name:'レジ',desc:'お会計がすばやくなり、お客さんの回転が上がる',lv:S.reji||0,max:COSTS.reji.length,cost:COSTS.reji[S.reji||0]},
     {id:'truck',k:'車',cat:'shop',eff:'満杯で自動出荷',name:'出荷トラック',desc:'倉庫がいっぱいになると、棚にない子を半値で自動で卸す（各5本は残す）',lv:S.truck?1:0,max:1,cost:50000},
     {id:'kura',k:'倉',cat:'shop',eff:CAP[S.kura]+' → '+CAP[S.kura+1]+'本',name:'倉庫を広げる',desc:'しまっておける数が増える（'+CAP.join(' → ')+'）',lv:S.kura,max:COSTS.kura.length,cost:COSTS.kura[S.kura]}
   ];
@@ -1726,6 +1782,10 @@ function buyItem(x){
   else if(x.id==='stove'){S.stoves++;S.burners.push(null);kitSig=''}
   else if(x.id==='chef')S.chef=true;
   else if(x.id==='pot')S.pot=true;
+  else if(x.id==='menu'){S.menu=true;kitSig=''}
+  else if(x.id==='hinshu'){S.hinshu=(S.hinshu||0)+1;stallSig='';kitSig='';reqSig=''}
+  else if(x.id==='sprink')S.sprink=(S.sprink||0)+1;
+  else if(x.id==='reji')S.reji=(S.reji||0)+1;
   else if(x.farm!=null){const was=S.farmers[x.farm];S.farmers[x.farm]++;farmerRT[x.farm].cool=1;
     toast(was?FARMERS[x.farm].name+'の腕が上がった':FARMERS[x.farm].name+'が来てくれた');
     if(S.stage!==x.farm){S.stage=x.farm;renderStages()}}
@@ -1783,7 +1843,7 @@ function updateDetailCount(){const el=document.querySelector('#detail .cnt');if(
 /* ---------- tabs ---------- */
 let curTab='shop';
 function selectTab(which){
-  curTab=which;
+  curTab=which;if(which!=='shop')noteTab=which;
   ['shop','req','ach','dex'].forEach(k=>{$('#t-'+k).setAttribute('aria-selected',k===which);$('#p-'+k).hidden=k!==which});
   if(which==='dex'){dexDirty=true;renderDex()}
   if(which==='req'){reqSig='';renderReq()}
@@ -1792,7 +1852,7 @@ function selectTab(which){
 $('#t-shop').onclick=()=>selectTab('shop');
 $('#t-req').onclick=()=>selectTab('req');$('#t-ach').onclick=()=>selectTab('ach');
 $('#reroll').onclick=rerollReqs;
-$('#pill-req').onclick=()=>{selectTab('req');const b=document.querySelector('.book');if(b&&b.scrollIntoView)b.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'})};
+$('#pill-req').onclick=()=>{noteTab='req';setScreen('note')};
 $('#banner-x').onclick=()=>{$('#banner').hidden=true};
 let bannerT=0;
 function showBanner(t,p){$('#banner-t').textContent=t;$('#banner-p').textContent=p;const b=$('#banner');b.hidden=false;b.classList.remove('pop');void b.offsetWidth;b.classList.add('pop');clearTimeout(bannerT);bannerT=setTimeout(()=>b.hidden=true,9000)}
@@ -1843,11 +1903,12 @@ function renderAch(){
   const tot=ACH.reduce((a,x)=>a+x.tiers.length,0),got=ACH.reduce((a,x)=>a+(S.ach[x.id]||0),0);
   $('#achcount').textContent='実績 ★'+got+' / '+tot;$('#achsub').textContent='ランク Lv'+S.lv+'「'+title(S.lv)+'」';
 }
-$('#quick-all').onclick=()=>{selectTab('shop');const b=document.querySelector('.book');if(b&&b.scrollIntoView)b.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'})};$('#t-dex').onclick=()=>selectTab('dex');
+$('#quick-all').onclick=()=>setScreen('up');$('#t-dex').onclick=()=>selectTab('dex');
 
 /* ---------- status / ui ---------- */
 function updateUI(){
   $('#coins').textContent=fmt(S.coins);
+  navBadges();
   $('#rlv').textContent='Lv'+S.lv;$('#rtitle').textContent=title(S.lv);$('#rbar').style.width=Math.min(100,S.xp/needXp(S.lv)*100)+'%';
   $('.rank').title='次のランクまで 経験値 '+(needXp(S.lv)-S.xp);
   const canDeliver=S.req.filter(q=>q&&(S.inv[q.sp]||0)>=q.n).length;
@@ -1983,6 +2044,36 @@ function drawDishCanvas(cvs,rc,sil){
   drawDish(c,rc,24,26,16,{sil:sil?(getComputedStyle(document.documentElement).getPropertyValue('--line').trim()||'#ccc'):null});
 }
 
+
+let SCREEN='field',bookOpen=false,noteTab='req';
+function setScreen(sc){
+  const changed=SCREEN!==sc;
+  SCREEN=sc;
+  document.querySelectorAll('nav.bottom button').forEach(b=>b.setAttribute('aria-current',b.dataset.sc===sc?'page':'false'));
+  const play=sc==='field'||sc==='shop'||sc==='kitchen';
+  bookOpen=!play;$('#play').hidden=!play;$('#book').hidden=play;
+  if(play){setView(sc)}
+  else{
+    const tabs=$('#book .tabs');
+    if(changed)sfx('tap');
+    if(sc==='up'){tabs.hidden=true;$('#booktitle').textContent='強化';selectTab('shop')}
+    else{tabs.hidden=false;$('#t-shop').hidden=true;$('#booktitle').textContent='ノート';selectTab(noteTab==='shop'?'req':noteTab)}
+    updateUI();
+  }
+  window.scrollTo({top:0,behavior:'auto'});
+}
+document.querySelectorAll('nav.bottom button').forEach(b=>b.onclick=()=>setScreen(b.dataset.sc));
+function navBadges(){
+  const set=(sc,txt)=>{const el=document.querySelector('nav.bottom [data-sc="'+sc+'"] .nb');el.hidden=!txt;if(txt)el.textContent=txt};
+  const ripeN=S.fields.reduce((a,fl,i)=>a+(S.unlocked[i]?fl.filter(ripe).length:0),0);
+  set('field',SCREEN!=='field'&&ripeN?ripeN:'');
+  const full=invFull(),out=S.shelf.some(x=>x&&!S.inv[x.sp]);
+  set('shop',SCREEN!=='shop'&&(full?'満杯':out?'品切れ':''));
+  set('kitchen',SCREEN!=='kitchen'&&S.kitchen&&S.burners.includes(null)&&RECIPES.some(rcCan)?'!':'');
+  const up=affordables().length;set('up',SCREEN!=='up'&&up?up:'');
+  const note=S.req.filter(q=>q&&(S.inv[q.sp]||0)>=q.n).length+achClaimable();set('note',note?note:'');
+}
+
 /* ---------- reset ---------- */
 function askReset(){
   const box=$('#resetbox');box.innerHTML='<div class="confirm">図鑑もふくめて全部消えます。<button type="button" class="danger" id="rs-yes">消す</button><button type="button" id="rs-no">やめる</button></div>';
@@ -2019,7 +2110,7 @@ function awayReport(r,sec){
   }else if(sec>60){let n=0;S.fields.forEach((f,i)=>{if(S.unlocked[i])n+=f.filter(ripe).length});if(n)toast('おかえりなさい。'+n+'本 育っていました')}
 }
 function showWelcome(m){const el=$('#welcome');el.querySelector('p').textContent=m;el.hidden=false}
-function frame(t){tick();draw(t);requestAnimationFrame(frame)}
+function frame(t){tick();if(!bookOpen)draw(t);else lastDraw=t;requestAnimationFrame(frame)}
 function start(data){
   let saved=null;
   if(data&&data.S)S=migrate(data.S);
