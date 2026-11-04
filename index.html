@@ -182,6 +182,38 @@ h1{font-size:30px;letter-spacing:.02em;text-shadow:0 2px 0 var(--dot)}
 @keyframes toastIn{from{opacity:0;transform:translate(-50%,10px)}}
 .views button[aria-selected="true"]{box-shadow:inset 0 -3px 0 rgba(0,0,0,.15)}
 @media (prefers-reduced-motion:reduce){.snd i,.snd.wait{animation:none!important}.toast{animation:none}.item,.invi,.card{transition:none}}
+
+.quick{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px 12px 12px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:8px}
+.quick-h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.quick-h strong{font-family:var(--display);font-weight:400;font-size:15px}
+.qcount{font-size:12px;font-weight:700;color:var(--accent)}
+.link{margin-left:auto;border:0;background:none;color:var(--leaf);font-weight:700;font-size:12px;cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:2px 0}
+.qrow{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:6px}
+.qk{position:relative;display:grid;grid-template-columns:34px minmax(0,1fr);grid-template-areas:"b t" "p p" "g g";gap:2px 8px;align-items:center;text-align:left;padding:8px 10px 9px;border:1.5px solid var(--line);border-radius:12px;background:var(--panel-2);cursor:pointer;transition:transform .1s,border-color .15s,background-color .15s}
+.qk .qb{grid-area:b;width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-family:var(--display);font-size:16px;color:#fff;background:var(--muted)}
+.qk .qt{grid-area:t;display:flex;flex-direction:column;min-width:0}
+.qk .qn{font-weight:700;font-size:13px;line-height:1.3}
+.qk .qe{font-size:11px;color:var(--muted);line-height:1.35;font-variant-numeric:tabular-nums}
+.qk .qp{grid-area:p;font-size:12px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums;margin-top:2px}
+.qk .pbar{grid-area:g}
+.qk.ok{border-color:var(--accent);background:var(--panel)}
+.qk.ok .qb{background:var(--accent);color:var(--accent-ink)}
+.qk.ok .qp{color:var(--accent)}
+.qk.ok:hover{transform:translateY(-2px)}
+.qk:active{transform:scale(.96)}
+.qk[aria-disabled="true"]{cursor:default}
+.qk.fresh{animation:fresh 1.1s ease-out}
+@keyframes fresh{0%{box-shadow:0 0 0 0 var(--accent)}40%{transform:scale(1.04)}100%{box-shadow:0 0 0 10px transparent}}
+.pbar{display:block;height:5px;border-radius:999px;background:var(--line);overflow:hidden}
+.pbar i{display:block;height:100%;width:0;background:var(--muted);border-radius:999px;transition:width .4s}
+.ok .pbar i{background:var(--accent)}
+.need{display:flex;align-items:center;gap:8px;margin-top:4px}
+.need .pbar{flex:1;max-width:140px}
+.needt{font-size:11px;color:var(--muted);font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.item.ok{border-color:var(--accent)}
+.item.ok .needt{color:var(--accent)}
+.tabs .n{font-size:11px;padding:0 6px;border-radius:999px;background:var(--accent);color:var(--accent-ink);margin-left:2px}
+@media (prefers-reduced-motion:reduce){.qk.fresh{animation:none}.pbar i{transition:none}}
 </style>
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
@@ -219,6 +251,10 @@ h1{font-size:30px;letter-spacing:.02em;text-shadow:0 2px 0 var(--dot)}
         <div class="status" id="status"></div>
         <button id="all" class="btn" type="button" hidden>まとめて収穫</button>
       </div>
+      <div class="quick" id="quick">
+        <div class="quick-h"><strong>すぐ強化</strong><span id="quick-h-n" class="qcount"></span><button type="button" class="link" id="quick-all">道具屋をぜんぶ見る</button></div>
+        <div class="qrow" id="qrow"></div>
+      </div>
       <div class="wx" id="wx" hidden></div>
       <div class="welcome" id="welcome" hidden><p></p><button type="button" class="btn">受け取る</button></div>
       <p class="tip" id="tip">なでて3本以上まとめて抜くと、ときどき「おまけ」でもう1本ついてくる。</p>
@@ -236,7 +272,7 @@ h1{font-size:30px;letter-spacing:.02em;text-shadow:0 2px 0 var(--dot)}
 
     <section class="book" aria-label="帳面">
       <div class="tabs" role="tablist">
-        <button type="button" role="tab" id="t-shop" aria-selected="true">道具屋</button>
+        <button type="button" role="tab" id="t-shop" aria-selected="true">道具屋 <span class="n" hidden></span></button>
         <button type="button" role="tab" id="t-dex" aria-selected="false">図鑑</button>
       </div>
       <div id="p-shop" class="shop" role="tabpanel"></div>
@@ -1154,24 +1190,24 @@ function renderStages(){
 function shopItems(){
   const sort=a=>a.sort((a,b)=>(a.lv>=a.max)-(b.lv>=b.max)||a.cost-b.cost);
   const tools=[
-    {id:'fert',name:'ふかふか肥料',desc:'やさいっこが1.3倍はやく育つ（新しく植えた分から）',lv:S.fert,max:COSTS.fert.length,cost:COSTS.fert[S.fert]},
-    {id:'une',name:'畝をひろげる',desc:'どの畑も、植えられる数が増える（6 → 9 → 12 → 16）',lv:S.une,max:COSTS.une.length,cost:COSTS.une[S.une]},
-    {id:'kakashi',name:'かかし',desc:'めずらしいやさいっこが出やすくなる',lv:S.kakashi,max:COSTS.kakashi.length,cost:COSTS.kakashi[S.kakashi]},
-    {id:'kago',name:'収穫かご',desc:'「まとめて収穫」ボタンが使えるようになる',lv:S.kago?1:0,max:1,cost:1200}
+    {id:'fert',k:'肥',cat:'field',eff:'育つ速さ ×1.3',name:'ふかふか肥料',desc:'やさいっこが1.3倍はやく育つ（新しく植えた分から）',lv:S.fert,max:COSTS.fert.length,cost:COSTS.fert[S.fert]},
+    {id:'une',k:'畝',cat:'field',eff:[6,9,12,16][S.une]+' → '+[6,9,12,16][S.une+1]+'マス',name:'畝をひろげる',desc:'どの畑も、植えられる数が増える（6 → 9 → 12 → 16）',lv:S.une,max:COSTS.une.length,cost:COSTS.une[S.une]},
+    {id:'kakashi',k:'守',cat:'field',eff:'レアが出やすく',name:'かかし',desc:'めずらしいやさいっこが出やすくなる',lv:S.kakashi,max:COSTS.kakashi.length,cost:COSTS.kakashi[S.kakashi]},
+    {id:'kago',k:'籠',cat:'field',eff:'まとめて収穫',name:'収穫かご',desc:'「まとめて収穫」ボタンが使えるようになる',lv:S.kago?1:0,max:1,cost:1200}
   ];
   const farmers=[];
   STAGES.forEach((st,i)=>{
     if(!S.unlocked[i])return;const F=FARMERS[i],lv=S.farmers[i];
-    farmers.push({id:'fm'+i,farm:i,name:lv?F.name+'の腕前アップ':F.name+'を雇う',
+    farmers.push({id:'fm'+i,farm:i,k:'農',cat:'field',eff:lv?FARM_IV[lv-1]+' → '+FARM_IV[Math.min(4,lv)]+'秒に1本':'自動で収穫',name:lv?F.name+'の腕前アップ':F.name+'を雇う',
       desc:lv?(lv<5?st.short+'の収穫ペースが上がる（'+FARM_IV[lv-1]+'秒 → '+FARM_IV[lv]+'秒に1本）':st.short+'でいちばんの名人になった'):st.short+'の育った子を自動で収穫してくれる。留守中も働く（'+FARM_IV[0]+'秒に1本）',
       lv,max:5,cost:F.base*Math.pow(5,lv),showLv:true});
   });
   const fields=[];
-  STAGES.forEach((st,i)=>{if(i)fields.push({id:'st'+i,stage:i,name:st.name+'を開拓',desc:st.desc,lv:S.unlocked[i]?1:0,max:1,cost:st.cost})});
+  STAGES.forEach((st,i)=>{if(i)fields.push({id:'st'+i,stage:i,k:'開',cat:'field',eff:'新しい畑',name:st.name+'を開拓',desc:st.desc,lv:S.unlocked[i]?1:0,max:1,cost:st.cost})});
   const stall=[
-    {id:'tana',name:'棚をふやす',desc:'直売所に並べられる種類が増える（3 → 4 → 6 → 8）',lv:S.tana,max:COSTS.tana.length,cost:COSTS.tana[S.tana]},
-    {id:'nobori',name:'のぼり旗',desc:'目立つようになって、お客さんが1.35倍来る',lv:S.nobori,max:COSTS.nobori.length,cost:COSTS.nobori[S.nobori]},
-    {id:'kura',name:'倉庫を広げる',desc:'しまっておける数が増える（'+CAP.join(' → ')+'）',lv:S.kura,max:COSTS.kura.length,cost:COSTS.kura[S.kura]}
+    {id:'tana',k:'棚',cat:'shop',eff:SHELF[S.tana]+' → '+SHELF[S.tana+1]+'種',name:'棚をふやす',desc:'直売所に並べられる種類が増える（3 → 4 → 6 → 8）',lv:S.tana,max:COSTS.tana.length,cost:COSTS.tana[S.tana]},
+    {id:'nobori',k:'旗',cat:'shop',eff:'お客さん ×1.35',name:'のぼり旗',desc:'目立つようになって、お客さんが1.35倍来る',lv:S.nobori,max:COSTS.nobori.length,cost:COSTS.nobori[S.nobori]},
+    {id:'kura',k:'倉',cat:'shop',eff:CAP[S.kura]+' → '+CAP[S.kura+1]+'本',name:'倉庫を広げる',desc:'しまっておける数が増える（'+CAP.join(' → ')+'）',lv:S.kura,max:COSTS.kura.length,cost:COSTS.kura[S.kura]}
   ];
   return [['畑','開拓すると、新しいやさいっこに会える',sort(fields)],['直売所','売り場と倉庫をととのえる',sort(stall)],['農家さん','畑ごとに雇える。自動で収穫してくれる',sort(farmers)],['道具','',sort(tools)]];
 }
@@ -1187,7 +1223,7 @@ function renderShop(){
     items.forEach(x=>{
       const done=x.lv>=x.max;
       const d=document.createElement('div');d.className='item';
-      d.innerHTML='<div><span class="nm"></span>'+(x.max>1&&(x.lv||!x.farm)?'<span class="lv">Lv '+x.lv+' / '+x.max+'</span>':'')+'<div class="ds"></div></div>';
+      d.innerHTML='<div><span class="nm"></span>'+(x.max>1&&(x.lv||!x.farm)?'<span class="lv">Lv '+x.lv+' / '+x.max+'</span>':'')+'<div class="ds"></div>'+(done?'':'<div class="need"><span class="pbar"><i></i></span><span class="needt"></span></div>')+'</div>';
       d.querySelector('.nm').textContent=x.name;d.querySelector('.ds').textContent=x.desc;
       const b=document.createElement('button');b.type='button';b.className='buy'+(done?' done':'');b.dataset.cost=done?'':x.cost;
       b.textContent=done?(x.stage?'開拓ずみ':x.max>1?'最大':'購入ずみ'):fmt(x.cost)+'円';
@@ -1196,7 +1232,49 @@ function renderShop(){
     });
     });
   }
-  box.querySelectorAll('.buy').forEach(b=>{if(b.dataset.cost){const poor=S.coins<+b.dataset.cost;b.classList.toggle('poor',poor);b.setAttribute('aria-disabled',poor?'true':'false')}});
+  box.querySelectorAll('.buy').forEach(b=>{if(b.dataset.cost){const c=+b.dataset.cost,poor=S.coins<c,it=b.parentNode;b.classList.toggle('poor',poor);b.setAttribute('aria-disabled',poor?'true':'false');
+    it.classList.toggle('ok',!poor);const bar=it.querySelector('.pbar i');if(bar)bar.style.width=Math.min(100,S.coins/c*100)+'%';
+    const nt=it.querySelector('.needt');if(nt)nt.textContent=poor?'あと '+fmt(c-S.coins)+'円':'買えます'}});
+  renderQuick();
+}
+function affordables(){const out=[];shopItems().forEach(g=>g[2].forEach(x=>{if(x.lv<x.max&&S.coins>=x.cost)out.push(x)}));return out}
+let quickSig='',okSeen=new Set();
+function quickList(){
+  const all=[];shopItems().forEach(g=>g[2].forEach(x=>{if(x.lv<x.max)all.push(x)}));
+  let pool;
+  if(view==='shop')pool=all.filter(x=>x.cat==='shop');
+  else{
+    const nextStage=all.filter(x=>x.stage).sort((a,b)=>a.cost-b.cost)[0];
+    pool=all.filter(x=>x.cat==='field'&&!x.stage&&(x.farm==null||x.farm===S.stage));
+    if(nextStage)pool.push(nextStage);
+  }
+  return pool.sort((a,b)=>(S.coins<a.cost)-(S.coins<b.cost)||a.cost-b.cost).slice(0,4);
+}
+function renderQuick(){
+  const list=quickList(),sig=view+'|'+list.map(x=>x.id+x.lv).join();
+  const row=$('#qrow');
+  if(sig!==quickSig){
+    quickSig=sig;row.innerHTML='';
+    if(!list.length)row.innerHTML='<p class="legend">ここで強化できるものは、ぜんぶそろいました。</p>';
+    list.forEach(x=>{
+      const b=document.createElement('button');b.type='button';b.className='qk';b.dataset.id=x.id;b.dataset.cost=x.cost;
+      b.innerHTML='<span class="qb"></span><span class="qt"><span class="qn"></span><span class="qe"></span></span><span class="qp"></span><span class="pbar"><i></i></span>';
+      b.querySelector('.qb').textContent=x.k;b.querySelector('.qn').textContent=x.farm!=null?FARMERS[x.farm].name.replace(/^.*の/,'')+(x.lv?'の腕前':'を雇う'):x.name;
+      b.querySelector('.qe').textContent=(x.max>1&&x.lv?'Lv'+x.lv+'→'+(x.lv+1)+' ・ ':'')+x.eff;
+      b.setAttribute('aria-label',x.name+'、'+fmt(x.cost)+'円');
+      b.onclick=()=>{if(S.coins<x.cost){sfx('full');toast('あと '+fmt(x.cost-S.coins)+'円で「'+x.name+'」が買えます');return}buyItem(x);b.classList.add('bought')};
+      row.appendChild(b);
+    });
+  }
+  row.querySelectorAll('.qk').forEach(b=>{
+    const c=+b.dataset.cost,ok=S.coins>=c,key=b.dataset.id+c;
+    b.classList.toggle('ok',ok);b.setAttribute('aria-disabled',ok?'false':'true');
+    b.querySelector('.pbar i').style.width=Math.min(100,S.coins/c*100)+'%';
+    b.querySelector('.qp').textContent=ok?fmt(c)+'円 ・ タップで強化':'あと '+fmt(c-S.coins)+'円';
+    if(ok&&!okSeen.has(key)){okSeen.add(key);b.classList.remove('fresh');void b.offsetWidth;b.classList.add('fresh')}
+  });
+  const n=affordables().length,tb=$('#t-shop .n');tb.hidden=!n;tb.textContent=n;
+  $('#quick-h-n').textContent=n?'買えるもの '+n+'件':'';
 }
 function buyItem(x){
   if(S.coins<x.cost){sfx('full');toast('あと '+fmt(x.cost-S.coins)+'円 足りません');return}
@@ -1267,7 +1345,8 @@ function selectTab(which){
   $('#t-shop').setAttribute('aria-selected',shop);$('#t-dex').setAttribute('aria-selected',!shop);
   $('#p-shop').hidden=!shop;$('#p-dex').hidden=shop;if(!shop){dexDirty=true;renderDex()}
 }
-$('#t-shop').onclick=()=>selectTab('shop');$('#t-dex').onclick=()=>selectTab('dex');
+$('#t-shop').onclick=()=>selectTab('shop');
+$('#quick-all').onclick=()=>{selectTab('shop');const b=document.querySelector('.book');if(b&&b.scrollIntoView)b.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'})};$('#t-dex').onclick=()=>selectTab('dex');
 
 /* ---------- status / ui ---------- */
 function updateUI(){
