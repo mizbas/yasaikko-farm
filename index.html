@@ -459,8 +459,8 @@ const SPI={};SP.forEach(s=>SPI[s.id]=s);
 const STARS=r=>'★'.repeat(r)+'☆'.repeat(4-r);
 
 /* ---------- state ---------- */
-const COSTS={fert:[40,250,1500,9000,60000,400000,3e6,2.5e7],une:[150,2500,200000],kakashi:[500,6000,80000,1.2e6],tractor:[5000,40000,400000,4e6,4e7],stove:[15000,150000,1.5e6],hinshu:[20000,200000,2e6,2e7,2e8],sprink:[8000,120000,1.5e6],reji:[3000,60000]};
-const TRAC_IV=[90,60,40,25,15];
+const COSTS={fert:[40,250,1500,9000,60000,400000,3e6,2.5e7],une:[150,2500,200000],kakashi:[500,6000,80000,1.2e6],tractor:[800,8000,60000,500000,4e6,4e7,3e8],stove:[15000,150000,1.5e6],hinshu:[20000,200000,2e6,2e7,2e8],sprink:[8000,120000,1.5e6],reji:[3000,60000]};
+const TRAC_IV=[60,45,32,22,15,10,7];
 const NST=STAGES.length;
 COSTS.tana=[800,12000,300000];COSTS.kura=[300,5000,80000,1.2e6,2e7];COSTS.nobori=[600,9000,150000,2.5e6];
 const SHELF=[3,4,6,8],CAP=[40,80,150,300,600,1200];
@@ -482,6 +482,8 @@ function migrate(o){
   while(s.shelf.length<SHELF[s.tana])s.shelf.push(null);
   s.st=Object.assign({kira:0,req:0,happy:0,rare:0,combo:0},o.st||{});
   while(s.burners.length<s.stoves)s.burners.push(null);
+  let ref=0;s.farmers.forEach((lv,i)=>{for(let k=0;k<lv;k++)ref+=FARMERS[i].base*Math.pow(5,k)});
+  if(ref>0){s.coins+=ref;s.total+=ref;s.farmers=s.farmers.map(()=>0);s.refund=ref;if(!s.tractor){s.tractor=1;s.refundTr=1}}
   return s;
 }
 const cap=()=>CAP[S.kura];
@@ -555,7 +557,8 @@ const ACH=[
   {id:'rare',name:'レア運',unit:'回',get:()=>S.st.rare,tiers:[1,10,50,200]},
   {id:'combo',name:'なでなで上手',unit:'コンボ',get:()=>S.st.combo,tiers:[3,5,8,12]},
   {id:'field',name:'開拓者',unit:'か所',get:()=>S.unlocked.filter(Boolean).length,tiers:[2,3,4,5]},
-  {id:'farm',name:'農家さん大集合',unit:'Lv',get:()=>S.farmers.reduce((a,b)=>a+b,0),tiers:[1,5,15,25]},
+  {id:'trun',name:'トラクター名人',unit:'回',get:()=>S.st.trun||0,tiers:[1,20,200,2000]},
+  {id:'tcombo',name:'大量収穫',unit:'コンボ',get:()=>S.st.tcombo||0,tiers:[5,10,20,40]},
   {id:'comp',name:'図鑑コンプリート',unit:'畑',get:()=>STAGES.filter((_,i)=>stageComplete(i)).length,tiers:[1,3,5]},
   {id:'cook',name:'台所の主',unit:'品',get:()=>S.cooked,tiers:[1,10,100,1000,5000]},
   {id:'recipe',name:'料理図鑑',unit:'種',get:()=>RECIPES.filter(r=>S.dishes[r.id]).length,tiers:[3,7,14]}
@@ -642,25 +645,34 @@ function simKitchen(end,acc){
 
 /* ---------- tractor & truck ---------- */
 const TR=STAGES.map(()=>({next:Date.now()+8000,run:null,puff:0}));
-function harvestAllRipe(st){let n=0;S.fields[st].forEach((sl,i)=>{if(ripe(sl)&&harvestAt(i,true,{st,farmer:true}))n++});return n}
+function harvestAllRipe(st){let n=0,v=0;S.fields[st].forEach((sl,i)=>{if(ripe(sl)){const val=unitPrice(SPI[sl.sp],1);if(harvestAt(i,true,{st,farmer:true,tractor:true,combo:n+1})){n++;v+=val}}});comboBonus(n,v,true);return n}
+function comboBonus(n,v,quiet){
+  S.st.trun=(S.st.trun||0)+1;
+  if(n>(S.st.tcombo||0))S.st.tcombo=n;
+  if(n<3)return 0;
+  const b=Math.max(1,Math.round(v*Math.min(1,n*.04)));S.coins+=b;S.total+=b;
+  if(!quiet){sfx('rare');toast('トラクター '+n+'コンボ！ ボーナス +'+fmt(b)+'円')}
+  return b;
+}
 function tractorTick(dt){
   if(!S.tractor)return;
   const now=Date.now(),iv=TRAC_IV[S.tractor-1]*1000;
   for(let st=0;st<NST;st++){
     if(!S.unlocked[st])continue;const T=TR[st];
     const visible=st===S.stage&&view==='field'&&W>0&&!bookOpen;
-    if(T.run&&!visible){harvestAllRipe(st);T.run=null;T.next=now+iv;continue}
+    if(T.run&&!visible){const r0=T.run;S.fields[st].forEach((sl,i)=>{if(ripe(sl)){const val=unitPrice(SPI[sl.sp],1);if(harvestAt(i,true,{st,farmer:true,tractor:true,combo:r0.combo+1})){r0.combo++;r0.val+=val}}});comboBonus(r0.combo,r0.val,true);T.run=null;T.next=now+iv;continue}
     if(!T.run){
       if(now<T.next)continue;
       if(invFull()||!S.fields[st].some(ripe)){T.next=now+3000;continue}
-      if(visible)T.run={row:0,x:-40,dir:1};else{harvestAllRipe(st);T.next=now+iv}
+      if(visible)T.run={row:0,x:-40,dir:1,combo:0,val:0,show:0};else{harvestAllRipe(st);T.next=now+iv}
       continue;
     }
     const L=layout(),rows=[...new Set(L.map(p=>Math.round(p.gy)))].sort((a,b)=>a-b);
     const r=T.run,rowY=rows[r.row],spd=Math.max(140,W*.55),nx=r.x+r.dir*spd*dt;
-    L.forEach((p,i)=>{if(Math.round(p.gy)!==rowY)return;const lo=Math.min(r.x,nx),hi=Math.max(r.x,nx);if(p.x>=lo&&p.x<hi&&ripe(S.fields[st][i]))harvestAt(i,true,{st,farmer:true})});
+    L.forEach((p,i)=>{if(Math.round(p.gy)!==rowY)return;const lo=Math.min(r.x,nx),hi=Math.max(r.x,nx);if(p.x>=lo&&p.x<hi&&ripe(S.fields[st][i])){const val=unitPrice(SPI[S.fields[st][i].sp],1);if(harvestAt(i,true,{st,farmer:true,tractor:true,combo:r.combo+1})){r.combo++;r.val+=val;r.show=1}}});
+    r.show=Math.max(0,r.show-dt*.8);
     r.x=nx;T.puff+=dt;if(T.puff>.16){T.puff=0;parts.push({x:r.x-r.dir*14,y:rowY-L[0].s*1.6,vx:-r.dir*10,vy:-30,life:1,kind:'smoke',r:4,rot:0,view:'field'});sfx('putt')}
-    if((r.dir>0&&r.x>W+40)||(r.dir<0&&r.x<-40)){r.row++;r.dir*=-1;r.x=r.dir>0?-40:W+40;if(r.row>=rows.length){T.run=null;T.next=now+iv}}
+    if((r.dir>0&&r.x>W+40)||(r.dir<0&&r.x<-40)){r.row++;r.dir*=-1;r.x=r.dir>0?-40:W+40;if(r.row>=rows.length){comboBonus(r.combo,r.val,false);T.run=null;T.next=now+iv}}
   }
 }
 let truckMsg=0;
@@ -1104,6 +1116,7 @@ function drawPerson(x,y,s,t,walk,ty,look){
   ctx.fillStyle='#3a2a22';ctx.beginPath();ctx.arc(x-s*.08,hy+s*.02,s*.025+.6,0,7);ctx.arc(x+s*.08,hy+s*.02,s*.025+.6,0,7);ctx.fill();
   ctx.restore();
 }
+function fitFont(txt,maxW,px,wt){let f=px;ctx.font=wt+' '+f+'px "Zen Maru Gothic",sans-serif';const w=ctx.measureText(txt).width;if(w>maxW&&w>0){f=Math.max(7,Math.floor(f*maxW/w));ctx.font=wt+' '+f+'px "Zen Maru Gothic",sans-serif'}}
 function drawStall(t,dt){
   const sky=H*.48;
   const g=ctx.createLinearGradient(0,0,0,sky);g.addColorStop(0,'#9fd2ec');g.addColorStop(1,'#e8f4f6');ctx.fillStyle=g;ctx.fillRect(0,0,W,sky);
@@ -1133,7 +1146,7 @@ function drawStall(t,dt){
   ctx.fillStyle='#5a3a1e';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=Math.round(H*.045)+'px "Mochiy Pop One",sans-serif';ctx.fillText('やさいっこ直売所',W/2,top-H*.092);
   ctx.textBaseline='alphabetic';
   // rep stars on back wall
-  ctx.font='12px "Zen Maru Gothic",sans-serif';ctx.fillStyle='#fff3d0';ctx.textAlign='left';ctx.fillText('評判 '+'★'.repeat(Math.round(S.rep))+'☆'.repeat(5-Math.round(S.rep)),L+14,top+18);
+
   if(S.lv>=10){const n=Math.max(3,Math.round((R-L)/90));for(let i=0;i<n;i++){const x=L+(R-L)*(i+.5)/n,sw=reduce?0:Math.sin(t*1.8+i)*.08;ctx.save();ctx.translate(x,top+H*.02);ctx.rotate(sw);ctx.strokeStyle='#3a2a22';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(0,H*.05);ctx.stroke();
     const lg=ctx.createRadialGradient(0,H*.09,0,0,H*.09,H*.09);lg.addColorStop(0,'rgba(255,200,120,.45)');lg.addColorStop(1,'rgba(255,200,120,0)');ctx.fillStyle=lg;ctx.beginPath();ctx.arc(0,H*.09,H*.09,0,7);ctx.fill();
     ctx.fillStyle='#e0484a';ctx.beginPath();ctx.ellipse(0,H*.09,H*.028,H*.04,0,0,7);ctx.fill();ctx.fillStyle='#3a2a22';ctx.fillRect(-H*.018,H*.048,H*.036,H*.006);ctx.fillRect(-H*.018,H*.128,H*.036,H*.006);ctx.restore()}}
@@ -1158,10 +1171,15 @@ function drawStall(t,dt){
     ctx.fillStyle='#c9934f';ctx.beginPath();ctx.ellipse(bx,by,rx,ry,0,0,Math.PI);ctx.lineTo(bx-rx,by);ctx.fill();
     ctx.strokeStyle='rgba(90,55,25,.5)';ctx.lineWidth=1;for(let j=-2;j<=2;j++){ctx.beginPath();ctx.moveTo(bx+j*rx*.35,by);ctx.lineTo(bx+j*rx*.3,by+ry*.9);ctx.stroke()}
     // tag
-    const tw=Math.min(cw*.86,84),ty=ctr+H*.03;
-    ctx.fillStyle=e?'#fffaf0':'rgba(255,250,240,.4)';rr(ctx,bx-tw/2,ty,tw,H*.075,5);ctx.fill();
-    ctx.fillStyle=e&&!stock?'#c0392b':'#4a3020';ctx.textAlign='center';ctx.font='700 '+Math.max(10,Math.round(H*.033))+'px "Zen Maru Gothic",sans-serif';
-    ctx.fillText(e?(stock?'¥'+fmt(unitPrice(SPI[e.sp],e.price))+'  ×'+stock:'品切れ'):'空き',bx,ty+H*.05);
+    const tw=Math.min(cw-4,84),th=Math.max(30,H*.105),ty=ctr+H*.025;
+    ctx.fillStyle=e?'#fffaf0':'rgba(255,250,240,.4)';rr(ctx,bx-tw/2,ty,tw,th,5);ctx.fill();
+    if(e&&saleOn(e.sp)){ctx.strokeStyle='#e2702a';ctx.lineWidth=2;ctx.stroke()}
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    if(e&&stock){
+      ctx.fillStyle='#4a3020';fitFont('¥'+fmt(unitPrice(SPI[e.sp],e.price)),tw-6,Math.round(th*.42),700);ctx.fillText('¥'+fmt(unitPrice(SPI[e.sp],e.price)),bx,ty+th*.32);
+      ctx.fillStyle='#8a6a4a';fitFont('×'+fmt(stock),tw-6,Math.round(th*.32),700);ctx.fillText('×'+fmt(stock),bx,ty+th*.74);
+    }else{ctx.fillStyle=e?'#c0392b':'#8a6a4a';const tx=e?'品切れ':'空き';fitFont(tx,tw-6,Math.round(th*.36),700);ctx.fillText(tx,bx,ty+th*.52)}
+    ctx.textBaseline='alphabetic';
   });
   // customers
   const ps=Math.min(H*.26,W*.2);
@@ -1480,7 +1498,8 @@ function draw(tms){
     ctx.restore();
   });
   ambientFront(st,t);
-  {const T=TR[st];if(T.run&&L[0]){const rows=[...new Set(L.map(p=>Math.round(p.gy)))].sort((a,b)=>a-b);drawTractor(T.run.x,rows[T.run.row]+L[0].s*.55,L[0].s*.9,T.run.dir,t)}}
+  {const T=TR[st];if(T.run&&L[0]){const rows=[...new Set(L.map(p=>Math.round(p.gy)))].sort((a,b)=>a-b);drawTractor(T.run.x,rows[T.run.row]+L[0].s*.55,L[0].s*.9,T.run.dir,t);
+    if(T.run.combo>=2){ctx.font='20px "Mochiy Pop One",sans-serif';const hw=ctx.measureText(T.run.combo+' コンボ').width*.66+8;const cx=Math.max(hw,Math.min(W-hw,T.run.x)),cy=Math.max(24,rows[T.run.row]-L[0].s*2.2),sc=1+T.run.show*.25;ctx.save();ctx.translate(cx,cy);ctx.scale(sc,sc);ctx.textAlign='center';ctx.lineWidth=5;ctx.strokeStyle='rgba(40,30,20,.85)';const tx=T.run.combo+' コンボ';ctx.strokeText(tx,0,0);ctx.fillStyle=T.run.combo>=10?'#ffd04a':'#ffb04a';ctx.fillText(tx,0,0);ctx.restore()}}}
   seasonFx(t);
   drawParts(dt,soil[2]);
   rainFx(t);
@@ -1532,7 +1551,7 @@ function harvestAt(i,quiet,opt){
     if(sl.shiny)burst(p.x,p.gy-p.s*.8,'star',20,p.s*1.3);
     burst(p.x,p.gy,'dirt',opt.farmer?5:9,p.s);burst(p.x,p.gy-p.s*.4,'leaf',opt.farmer?1:3,p.s);
     if(sp.r>=3||r.isNew)burst(p.x,p.gy-p.s*.8,'star',sp.r>=3?12:6,p.s);
-    sfx('pop',opt.farmer?-3:(opt.combo||1)-1);
+    sfx('pop',opt.tractor?Math.min(8,((opt.combo||1)-1)*.6):opt.farmer?-3:(opt.combo||1)-1);
     if(r.isNew&&!opt.farmer)sfx('new');else if(sp.r>=3&&!opt.farmer)sfx('rare');
   }
   S.fields[st][i]=plant(st,Date.now());
@@ -1599,7 +1618,7 @@ function simulateAway(from,to){
   const end=Math.min(to,from+8*3600*1000);const acc={n:0,news:[],sold:0,coins:0,cust:0,lv0:S.lv};
   simming=true;lvGain=0;
   const trAcc=STAGES.map(()=>0);
-  try{for(let a=from;a<end;a+=60000){const b=Math.min(end,a+60000);simFarmers(a,b,acc);
+  try{for(let a=from;a<end;a+=60000){const b=Math.min(end,a+60000);
     if(S.tractor){const iv=TRAC_IV[S.tractor-1]*1000;STAGES.forEach((_,st)=>{if(!S.unlocked[st])return;trAcc[st]+=b-a;while(trAcc[st]>=iv){trAcc[st]-=iv;S.fields[st].forEach((sl,i)=>{if(sl.t0+sl.dur<=b){const sp=SPI[sl.sp],r=collect(st,sp,true,sl.shiny);if(r){acc.n++;if(r.isNew)acc.news.push(sp.name);S.fields[st][i]=plant(st,b)}}})}})}
     simKitchen(b,acc);acc.coins+=shipOverflow(true);simCustomers(b-a,acc)}}finally{simming=false}
   S.req.forEach((q,i)=>{if(!q&&S.reqNext[i]<=end){const r=newReq();if(r)S.req[i]=r}});reqSig='';
@@ -1671,7 +1690,7 @@ function shopItems(){
     {id:'fert',k:'肥',cat:'field',eff:'育つ速さ ×1.3',name:'ふかふか肥料',desc:'やさいっこが1.3倍はやく育つ（新しく植えた分から）',lv:S.fert,max:COSTS.fert.length,cost:COSTS.fert[S.fert]},
     {id:'une',k:'畝',cat:'field',eff:[6,9,12,16][S.une]+' → '+[6,9,12,16][S.une+1]+'マス',name:'畝をひろげる',desc:'どの畑も、植えられる数が増える（6 → 9 → 12 → 16）',lv:S.une,max:COSTS.une.length,cost:COSTS.une[S.une]},
     {id:'kakashi',k:'守',cat:'field',eff:'レアが出やすく',name:'かかし',desc:'めずらしいやさいっこが出やすくなる',lv:S.kakashi,max:COSTS.kakashi.length,cost:COSTS.kakashi[S.kakashi]},
-    {id:'tractor',k:'ト',cat:'field',eff:S.tractor?TRAC_IV[S.tractor-1]+' → '+TRAC_IV[Math.min(4,S.tractor)]+'秒ごと':'まとめて回収',name:'トラクター',desc:'一定時間ごとに畑を走って、育った子をまとめて回収する。どの畑でも、留守中も働く（'+TRAC_IV.join('→')+'秒ごと）',lv:S.tractor,max:COSTS.tractor.length,cost:COSTS.tractor[S.tractor]},
+    {id:'tractor',k:'ト',cat:'field',eff:S.tractor?TRAC_IV[S.tractor-1]+' → '+TRAC_IV[Math.min(TRAC_IV.length-1,S.tractor)]+'秒ごと':'まとめて回収',name:'トラクター',desc:'一定時間ごとに畑を走って、育った子をまとめて回収する。たくさん続けて抜くとコンボボーナス。どの畑でも、留守中も働く（'+TRAC_IV.join('→')+'秒ごと）',lv:S.tractor,max:COSTS.tractor.length,cost:COSTS.tractor[S.tractor]},
     {id:'hinshu',k:'種',cat:'field',eff:'売値 ×1.2',name:'品種改良',desc:'すべてのやさいっこが、より高く売れるようになる（料理・お願い・きらきらにも効く）',lv:S.hinshu||0,max:COSTS.hinshu.length,cost:COSTS.hinshu[S.hinshu||0]},
     {id:'sprink',k:'水',cat:'field',eff:'育つ速さ ×1.25',name:'スプリンクラー',desc:'水やりを自動にして、どの畑も速く育つ（新しく植えた分から）',lv:S.sprink||0,max:COSTS.sprink.length,cost:COSTS.sprink[S.sprink||0]},
     {id:'kago',k:'籠',cat:'field',eff:'まとめて収穫',name:'収穫かご',desc:'「まとめて収穫」ボタンが使えるようになる',lv:S.kago?1:0,max:1,cost:1200}
@@ -1698,7 +1717,7 @@ function shopItems(){
     {id:'truck',k:'車',cat:'shop',eff:'満杯で自動出荷',name:'出荷トラック',desc:'倉庫がいっぱいになると、棚にない子を半値で自動で卸す（各5本は残す）',lv:S.truck?1:0,max:1,cost:50000},
     {id:'kura',k:'倉',cat:'shop',eff:CAP[S.kura]+' → '+CAP[S.kura+1]+'本',name:'倉庫を広げる',desc:'しまっておける数が増える（'+CAP.join(' → ')+'）',lv:S.kura,max:COSTS.kura.length,cost:COSTS.kura[S.kura]}
   ];
-  return [['畑','開拓すると、新しいやさいっこに会える',sort(fields)],['直売所','売り場と倉庫をととのえる',sort(stall)],['台所','料理で稼ぐ',sort(kit)],['農家さん','畑ごとに雇える。自動で収穫してくれる',sort(farmers)],['道具','',sort(tools)]];
+  return [['畑','開拓すると、新しいやさいっこに会える',sort(fields)],['直売所','売り場と倉庫をととのえる',sort(stall)],['台所','料理で稼ぐ',sort(kit)],['道具','トラクターや肥料など',sort(tools)]];
 }
 let shopSig='';
 function renderShop(){
@@ -2096,13 +2115,13 @@ let lastTick=Date.now();
 function tick(){
   const now=Date.now(),dt=(now-lastTick)/1000;lastTick=now;
   if(dt>5){awayReport(simulateAway(now-dt*1000,now),dt);return}
-  weatherTick(dt);farmerTick(dt);tractorTick(dt);custTick(dt);saleTick();reqTick();kitchenTick();seasonTick();shipOverflow(false);
+  weatherTick(dt);tractorTick(dt);custTick(dt);saleTick();reqTick();kitchenTick();seasonTick();shipOverflow(false);
 }
 function awayReport(r,sec){
   dexDirty=true;stallSig='';
   if(sec<=60)return;
   if(r.n||r.sold){
-    let m='おかえりなさい。留守のあいだに'+(r.n?'農家さんとトラクターが '+r.n+'本 収穫し、':'')+(r.dish?'台所で '+r.dish+'品の料理ができ、':'')+'直売所では '+r.cust+'人 のお客さんに '+r.sold+'本 売れて、'+fmt(r.coins)+'円 になりました';
+    let m='おかえりなさい。留守のあいだに'+(r.n?'トラクターが '+r.n+'本 収穫し、':'')+(r.dish?'台所で '+r.dish+'品の料理ができ、':'')+'直売所では '+r.cust+'人 のお客さんに '+r.sold+'本 売れて、'+fmt(r.coins)+'円 になりました';
     if(invFull())m+='。倉庫がいっぱいです';
     if(r.lvUp)m+='。ランクが Lv'+S.lv+'「'+title(S.lv)+'」に上がりました';
     if(r.news.length)m+='。新しく見つけた子：'+r.news.slice(0,4).join('、')+(r.news.length>4?' ほか'+(r.news.length-4)+'種':'');
@@ -2120,6 +2139,7 @@ function start(data){
     const now=Date.now(),away=(now-S.last)/1000;
     if(away>5)awayReport(simulateAway(S.last,now),away);
   }
+  if(S.refund){const rf=S.refund,rt=S.refundTr;setTimeout(()=>showBanner('農家さんはトラクターに交代しました',(rt?'トラクターをプレゼント ・ ':'')+'雇っていた分の '+fmt(rf)+'円 をお返しします'),600);delete S.refund;delete S.refundTr}
   lastTick=Date.now();
   $('#snd-bgm').onclick=()=>setSnd('bgm');$('#snd-sfx').onclick=()=>setSnd('sfx');
   drawLogo();
