@@ -558,7 +558,7 @@ const ACH=[
   {id:'combo',name:'なでなで上手',unit:'コンボ',get:()=>S.st.combo,tiers:[3,5,8,12]},
   {id:'field',name:'開拓者',unit:'か所',get:()=>S.unlocked.filter(Boolean).length,tiers:[2,3,4,5]},
   {id:'trun',name:'トラクター名人',unit:'回',get:()=>S.st.trun||0,tiers:[1,20,200,2000]},
-  {id:'tcombo',name:'大量収穫',unit:'コンボ',get:()=>S.st.tcombo||0,tiers:[5,10,20,40]},
+  {id:'tcombo',name:'大量収穫',unit:'コンボ',get:()=>S.st.tcombo||0,tiers:[4,8,12,16]},
   {id:'comp',name:'図鑑コンプリート',unit:'畑',get:()=>STAGES.filter((_,i)=>stageComplete(i)).length,tiers:[1,3,5]},
   {id:'cook',name:'台所の主',unit:'品',get:()=>S.cooked,tiers:[1,10,100,1000,5000]},
   {id:'recipe',name:'料理図鑑',unit:'種',get:()=>RECIPES.filter(r=>S.dishes[r.id]).length,tiers:[3,7,14]}
